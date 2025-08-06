@@ -1,0 +1,11 @@
+# Configurações locais - NÃO VERSIONAR NO GIT
+
+# INSTRUÇÕES:
+# 1. Crie um arquivo em resources chamado application-local.properties
+# 2. Copie este arquivo para: application-local.properties
+# 3. Substitua as credenciais abaixo pelas suas
+
+# PostgreSQL - Configuração Local - O que está aqui em baixo é o que deve ser copiado.
+spring.datasource.url=jdbc:postgresql://localhost:5432/dunnas
+spring.datasource.username=SEU_USUARIO_POSTGRES
+spring.datasource.password=SUA_SENHA_POSTGRES
