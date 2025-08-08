@@ -10,7 +10,7 @@ CREATE TABLE produtos (
     preco_com_desconto NUMERIC(10, 2),
     fornecedor_id BIGINT NOT NULL,
 
-    -- Criação das chaves estrangeiras --
+    -- Criação da chave estrangeira --
     CONSTRAINT fk_produtos_fornecedor
                 FOREIGN KEY (fornecedor_id)
                 REFERENCES fornecedores(id),
