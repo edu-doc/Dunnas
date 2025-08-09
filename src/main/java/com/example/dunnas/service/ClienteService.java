@@ -4,11 +4,9 @@ import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.ClienteException;
 import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.repository.ClienteRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class ClienteService {
@@ -17,22 +15,54 @@ public class ClienteService {
 
     private final EmailService emailService;
 
-    public  ClienteService(ClienteRepository clienteRepository, EmailService emailService) {
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    public  ClienteService(ClienteRepository clienteRepository, EmailService emailService, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Cliente cadastrarCliente(Cliente cliente) {
+    public com.example.dunnas.dto.ClienteResponseDTO cadastrarCliente(com.example.dunnas.dto.ClienteRequestDTO dto) {
+    
+        if (buscarPorUsuario(dto.getUsuario()).isPresent()) {
+            throw new RuntimeException("Nome de usuário já cadastrado. Escolha outro.");
+        }
+        if (buscarPorEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("Email já cadastrado. Use outro email.");
+        }
+        if (buscarPorCpf(dto.getCpf()).isPresent()) {
+            throw new RuntimeException("CPF já cadastrado. Use outro CPF.");
+        }
 
-        String codigo = String.format("%06d", new Random().nextInt(999999));
-        cliente.setCodigoVerificacao(codigo);
+        Cliente cliente = new Cliente();
+        cliente.setNome(dto.getNome());
+        cliente.setCpf(dto.getCpf());
+        cliente.setDataNascimento(dto.getDataNascimento());
+        cliente.setEmail(dto.getEmail());
+        cliente.setUsuario(dto.getUsuario());
+        cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
+        cliente.setSaldo(java.math.BigDecimal.ZERO);
         cliente.setRole(UsuarioRole.CLIENTE);
+        cliente.setVerificado(false);
+
+        String codigo = String.format("%06d", new java.util.Random().nextInt(999999));
+        cliente.setCodigoVerificacao(codigo);
 
         Cliente clienteSalvo = clienteRepository.save(cliente);
-
         emailService.enviarEmailVerificacao(clienteSalvo.getEmail(), codigo);
 
-        return clienteRepository.save(cliente);
+        return new com.example.dunnas.dto.ClienteResponseDTO(
+            clienteSalvo.getId(),
+            clienteSalvo.getNome(),
+            clienteSalvo.getCpf(),
+            clienteSalvo.getDataNascimento(),
+            clienteSalvo.getEmail(),
+            clienteSalvo.getUsuario(),
+            clienteSalvo.getSaldo(),
+            clienteSalvo.getRole(),
+            clienteSalvo.isVerificado()
+        );
     }
 
     public Cliente buscarPorId(Long id) {
@@ -43,6 +73,14 @@ public class ClienteService {
 
     public Optional<Cliente> buscarPorUsuario(String usuario) {
         return clienteRepository.findByUsuario(usuario);
+    }
+
+    public Optional<Cliente> buscarPorEmail(String email) {
+        return clienteRepository.findByEmail(email);
+    }
+
+    public Optional<Cliente> buscarPorCpf(String cpf) {
+        return clienteRepository.findByCpf(cpf);
     }
 
     public Cliente alterarSenha(Long id, String senhaAntiga, String senhaNova) {
