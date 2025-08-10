@@ -21,7 +21,7 @@
         <h2>Editar Produto</h2>
         <form action="/produtos/atualizar" method="post">
             <input type="hidden" name="id" value="${produto.id}">
-            <input type="hidden" name="fornecedorId" value="${produto.fornecedor.id}">
+            <!-- Removido fornecedorId, será extraído do JWT no backend -->
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" required value="${produto.nome}">
 
@@ -31,18 +31,14 @@
             <label for="preco">Preço:</label>
             <input type="number" id="preco" name="preco" step="0.01" required value="${produto.preco}">
 
-            <label for="precoComDesconto">Preço com Desconto:</label>
-            <input type="number" id="precoComDesconto" name="precoComDesconto" step="0.01" value="${produto.precoComDesconto}">
-
             <button type="submit">Salvar Alterações</button>
         </form>
         <form action="/produtos/excluir" method="post">
             <input type="hidden" name="id" value="${produto.id}">
-            <input type="hidden" name="fornecedorId" value="${produto.fornecedor.id}">
+            <!-- Removido fornecedorId, será extraído do JWT no backend -->
             <button type="submit" class="delete-btn">Excluir Produto</button>
         </form>
             <form action="/produtos/produtos-fornecedor" method="get">
-                <input type="hidden" name="fornecedorId" value="${produto.fornecedor.id}">
                 <button type="submit" style="background:#6c757d;color:#fff;margin-top:10px;width:100%;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;font-size:16px;">Voltar</button>
             </form>
     </div>

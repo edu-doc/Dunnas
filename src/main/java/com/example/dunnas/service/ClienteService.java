@@ -108,5 +108,23 @@ public class ClienteService {
         }
 
     }
+    
+    public Cliente criarClienteAdmin(String usuario, String senha, String email) {
+        if (buscarPorUsuario(usuario).isPresent()) {
+            throw new RuntimeException("Usuário admin já existe.");
+        }
+        Cliente cliente = new Cliente();
+        cliente.setUsuario(usuario);
+        cliente.setSenha(passwordEncoder.encode(senha));
+        cliente.setEmail(email);
+        cliente.setRole(com.example.dunnas.enuns.UsuarioRole.ADMIN);
+        cliente.setVerificado(true);
+        cliente.setSaldo(java.math.BigDecimal.ZERO);
+        cliente.setNome("Administrador");
+        cliente.setCpf("00000000000");
+        cliente.setDataNascimento(java.time.LocalDate.of(2000,1,1));
+        cliente.setCodigoVerificacao(null);
+        return clienteRepository.save(cliente);
+    }
 
 }

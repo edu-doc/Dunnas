@@ -43,6 +43,9 @@
 
         <button type="submit">Entrar</button>
     </form>
+    <form action="/clientes/verificar" method="get" style="margin-top:10px;">
+        <button type="submit" style="width:100%;background:#28a745;">Verificar Conta</button>
+    </form>
 
     <p style="text-align: center; margin-top: 20px;">
         Não tem uma conta? Cadastre-se como:

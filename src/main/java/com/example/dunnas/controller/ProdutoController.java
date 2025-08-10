@@ -20,10 +20,14 @@ public class ProdutoController {
     private FornecedorService fornecedorService;
 
     @GetMapping("/editar/{id}")
-    public String editarProduto(@PathVariable Long id, Model model) {
-        Produto produto = produtoService.buscarPorId(id).orElseThrow();
-        model.addAttribute("produto", produto);
-        return "produtos/editar-produto";
+        public String editarProduto(@PathVariable Long id, Model model, @CookieValue("jwt_token") String jwtToken) {
+            Long fornecedorId = jwtUtil.extractUserId(jwtToken);
+            Produto produto = produtoService.buscarPorId(id).orElseThrow();
+            if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+                return "redirect:/produtos/produtos-fornecedor?forbidden";
+            }
+            model.addAttribute("produto", produto);
+            return "produtos/editar-produto";
     }
 
     @PostMapping("/atualizar")
@@ -32,21 +36,29 @@ public class ProdutoController {
                                    @RequestParam String descricao,
                                    @RequestParam BigDecimal preco,
                                    @RequestParam(required = false) BigDecimal precoComDesconto,
-                                   @RequestParam Long fornecedorId) {
+                                   @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
         Produto produto = produtoService.buscarPorId(id).orElseThrow();
+        if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+            return "redirect:/produtos/produtos-fornecedor?forbidden";
+        }
         produto.setNome(nome);
         produto.setDescricao(descricao);
         produto.setPreco(preco);
         produto.setPrecoComDesconto(precoComDesconto);
-        produto.setFornecedor(fornecedorService.buscarPorId(fornecedorId));
         produtoService.atualizarProduto(produto);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+        return "redirect:/produtos/produtos-fornecedor";
     }
 
     @PostMapping("/excluir")
-    public String excluirProduto(@RequestParam Long id, @RequestParam Long fornecedorId) {
+    public String excluirProduto(@RequestParam Long id, @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
+        Produto produto = produtoService.buscarPorId(id).orElseThrow();
+        if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+            return "redirect:/produtos/produtos-fornecedor?forbidden";
+        }
         produtoService.excluirProduto(id);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+        return "redirect:/produtos/produtos-fornecedor";
     }
 
     @GetMapping("/detalhe/{id}")
@@ -57,28 +69,36 @@ public class ProdutoController {
     }
 
     @GetMapping("/produtos-fornecedor")
-    public String produtosFornecedor(Model model, @RequestParam Long fornecedorId) {
+    public String produtosFornecedor(Model model, @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
         model.addAttribute("produtos", produtoService.listarProdutosPorFornecedor(fornecedorId));
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/produtos-fornecedor";
     }
 
+    @Autowired
+    private com.example.dunnas.security.JwtUtil jwtUtil;
+
     @GetMapping("/produto-cliente")
-    public String produtosCliente(Model model) {
+    public String produtosCliente(Model model, @CookieValue("jwt_token") String jwtToken) {
         model.addAttribute("produtos", produtoService.listarProdutos());
+        Long clienteId = jwtUtil.extractUserId(jwtToken);
+        model.addAttribute("clienteId", clienteId);
         return "produtos/produto-cliente";
     }
 
     @GetMapping("/cadastro")
-    public String cadastroProduto(Model model, @RequestParam Long fornecedorId) {
+    public String cadastroProduto(Model model, @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
         model.addAttribute("produto", new Produto());
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/cadastro-produto";
     }
 
     @PostMapping("/salvar")
-    public String salvarProduto(@ModelAttribute Produto produto, @RequestParam Long fornecedorId) {
+    public String salvarProduto(@ModelAttribute Produto produto, @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
         produtoService.cadastrarProduto(produto, fornecedorId);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+        return "redirect:/produtos/produtos-fornecedor";
     }
 }

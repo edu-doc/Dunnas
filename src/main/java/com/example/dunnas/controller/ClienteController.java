@@ -19,6 +19,9 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
+    @Autowired
+    private com.example.dunnas.security.JwtUtil jwtUtil;
+
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
     model.addAttribute("cliente", new ClienteRequestDTO());
@@ -34,7 +37,8 @@ public class ClienteController {
         }
         try {
             ClienteResponseDTO response = clienteService.cadastrarCliente(clienteRequestDTO);
-            return "redirect:/clientes/sucesso?email=" + response.getEmail();
+            model.addAttribute("email", response.getEmail());
+            return "clientes/sucesso";
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null) {
@@ -56,23 +60,23 @@ public class ClienteController {
     }
 
     @GetMapping("/sucesso")
-    public String sucessoCadastro(@RequestParam("email") String email, Model model) {
-        model.addAttribute("email", email);
+    public String sucessoCadastro(Model model) {
+        // O email já está no model se vier do cadastro, senão apenas renderiza a tela
         return "clientes/sucesso";
     }
 
+    @GetMapping("/perfil")
+    public String perfilCliente(Model model, @CookieValue("jwt_token") String jwtToken) {
+        Long clienteId = jwtUtil.extractUserId(jwtToken);
+        com.example.dunnas.model.entity.Cliente clienteEntity = clienteService.buscarPorId(clienteId);
+        // Adiciona dados do cliente como 'usuario' para home.jsp
+        model.addAttribute("usuario", clienteEntity);
+        return "home";
+    }
+
     @GetMapping("/verificar")
-    public String paginaVerificacao(@RequestParam(value = "email", required = false) String email,
-                                   @RequestParam(value = "error", required = false) String error,
-                                   Model model) {
-        if (email != null) {
-            model.addAttribute("email", email);
-        }
-        
-        if (error != null) {
-            model.addAttribute("error", "Código de verificação inválido ou expirado.");
-        }
-        
+    public String mostrarFormularioVerificacao(@RequestParam(value = "email", required = false) String email, Model model) {
+        model.addAttribute("email", email);
         return "clientes/verificacao";
     }
 

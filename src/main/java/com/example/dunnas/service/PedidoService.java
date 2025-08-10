@@ -7,10 +7,7 @@ import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.model.entity.Produto;
 import com.example.dunnas.model.repository.PedidoRepository;
-import com.example.dunnas.model.repository.ClienteRepository;
-import com.example.dunnas.model.repository.FornecedorRepository;
 import com.example.dunnas.model.repository.ProdutoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,24 +16,19 @@ import java.time.LocalDateTime;
 
 @Service
 public class PedidoService {
+    private final PedidoRepository pedidoRepository;
+    private final ClienteService clienteService;
+    private final FornecedorService fornecedorService;
+    private final ProdutoRepository produtoRepository;
+    private final CupomService cupomService;
 
-    private PedidoRepository pedidoRepository;
-
-    private ClienteService clienteService;
-
-    private FornecedorService fornecedorService;
-
-    private ProdutoRepository produtoRepository;
-
-    public PedidoService(PedidoRepository pedidoRepository, ClienteService clienteService, FornecedorService fornecedorService, ProdutoRepository produtoRepository) {
+    public PedidoService(PedidoRepository pedidoRepository, ClienteService clienteService, FornecedorService fornecedorService, ProdutoRepository produtoRepository, CupomService cupomService) {
         this.pedidoRepository = pedidoRepository;
         this.clienteService = clienteService;
         this.fornecedorService = fornecedorService;
         this.produtoRepository = produtoRepository;
+        this.cupomService = cupomService;
     }
-
-
-
 
     public PedidoResponseDTO criarPedido(PedidoRequestDTO dto) {
 
@@ -50,13 +42,10 @@ public class PedidoService {
 
         BigDecimal desconto = BigDecimal.ZERO;
         if (dto.getCupom() != null && !dto.getCupom().isEmpty()) {
-           /*
-            Cupom cupom = cupomRepository.findByCodigoAndFornecedorId(dto.getCupom(), fornecedor.getId())
-                    .orElse(null);
-            if (cupom != null && cupom.isValido()) {
-                desconto = cupom.getValorDesconto();
+            var cupomOpt = cupomService.validarCupom(dto.getCupom());
+            if (cupomOpt.isPresent()) {
+                desconto = cupomOpt.get().getDesconto();
             }
-            */
         }
 
         Pedido pedido = new Pedido();
@@ -84,4 +73,9 @@ public class PedidoService {
 
         return response;
     }
+
+    public List<Pedido> listarPedidosPorCliente(Long clienteId) {
+        return pedidoRepository.findByClienteId(clienteId);
+    }
+
 }

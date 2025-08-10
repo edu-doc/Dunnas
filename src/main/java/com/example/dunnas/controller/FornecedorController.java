@@ -1,4 +1,3 @@
-
 package com.example.dunnas.controller;
 
 import com.example.dunnas.dto.FornecedorRequestDTO;
@@ -19,6 +18,9 @@ public class FornecedorController {
     @Autowired
     private FornecedorService fornecedorService;
 
+    @Autowired
+    private com.example.dunnas.security.JwtUtil jwtUtil;
+
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
         model.addAttribute("fornecedor", new FornecedorRequestDTO());
@@ -34,7 +36,8 @@ public class FornecedorController {
         }
         try {
             FornecedorResponseDTO response = fornecedorService.cadastrarFornecedor(fornecedorRequestDTO);
-            return "redirect:/fornecedores/sucesso?email=" + response.getEmail();
+            model.addAttribute("email", response.getEmail());
+            return "fornecedores/sucesso";
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null) {
@@ -56,8 +59,8 @@ public class FornecedorController {
     }
 
     @GetMapping("/sucesso")
-    public String sucessoCadastro(@RequestParam("email") String email, Model model) {
-        model.addAttribute("email", email);
+    public String sucessoCadastro(Model model) {
+        // O email já está no model se vier do cadastro, senão apenas renderiza a tela
         return "fornecedores/sucesso";
     }
 
@@ -87,5 +90,13 @@ public class FornecedorController {
             model.addAttribute("email", email);
             return "fornecedores/verificacao";
         }
+    }
+
+    @GetMapping("/perfil")
+    public String perfilFornecedor(Model model, @CookieValue("jwt_token") String jwtToken) {
+        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
+        com.example.dunnas.model.entity.Fornecedor fornecedorEntity = fornecedorService.buscarPorId(fornecedorId);
+        model.addAttribute("usuario", fornecedorEntity);
+        return "home";
     }
 }

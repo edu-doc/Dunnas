@@ -17,7 +17,7 @@
     <div class="container">
         <h2>Cadastrar Produto</h2>
         <form action="/produtos/salvar" method="post">
-            <input type="hidden" name="fornecedorId" value="${fornecedor.id}">
+            <!-- Removido fornecedorId, será extraído do JWT no backend -->
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" required>
 
@@ -27,10 +27,11 @@
             <label for="preco">Preço:</label>
             <input type="number" id="preco" name="preco" step="0.01" required>
 
-            <label for="precoComDesconto">Preço com Desconto:</label>
-            <input type="number" id="precoComDesconto" name="precoComDesconto" step="0.01">
-
             <button type="submit">Cadastrar</button>
+        </form>
+        <form action="/produtos/produtos-fornecedor" method="get" style="margin-top:10px;">
+            <button type="submit" style="background:#6c757d;color:#fff;width:100%;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;font-size:16px;">Voltar</button>
+        </form>
         </form>
     </div>
 </body>

@@ -80,7 +80,7 @@
             <p>Para ativar sua conta e fazer login, você precisa verificar seu email com o código que enviamos.</p>
         </div>
 
-        <a href="/clientes/verificar?email=${email}" class="btn">Verificar Conta Agora</a>
+    <a href="/clientes/verificar" class="btn">Verificar Conta Agora</a>
         <a href="/login" class="btn btn-secondary">Voltar ao Login</a>
     </div>
 </body>

@@ -42,10 +42,13 @@
         <div class="top-bar" style="justify-content:space-between;align-items:center;">
             <h2 style="margin:0;">Meus Produtos</h2>
             <div style="display:flex;gap:12px;align-items:center;">
-                <a href="/produtos/cadastro?fornecedorId=${fornecedor.id}" class="add-btn">+ Cadastrar Novo Produto</a>
-                <form action="/auth/logout" method="get" style="margin:0;display:inline;">
-                    <button type="submit" style="background:#dc3545;color:#fff;border:none;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:15px;font-weight:bold;">Logout</button>
-                </form>
+                    <form action="/fornecedores/perfil" method="get" style="margin:0;display:inline;">
+                        <button type="submit" style="background:#6c757d;color:#fff;border:none;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:15px;font-weight:bold;">Meu Perfil</button>
+                    </form>
+                    <a href="/produtos/cadastro" class="add-btn">+ Cadastrar Novo Produto</a>
+                    <form action="/auth/logout" method="get" style="margin:0;display:inline;">
+                        <button type="submit" style="background:#dc3545;color:#fff;border:none;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:15px;font-weight:bold;">Logout</button>
+                    </form>
             </div>
         </div>
         <table>
@@ -53,7 +56,6 @@
                 <th>Nome</th>
                 <th>Descrição</th>
                 <th>Preço</th>
-                <th>Preço com Desconto</th>
                 <th>Ações</th>
             </tr>
             <c:forEach var="produto" items="${produtos}">
@@ -61,23 +63,17 @@
                     <td>${produto.nome}</td>
                     <td>${produto.descricao}</td>
                     <td>R$ ${produto.preco}</td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${produto.precoComDesconto != null && produto.precoComDesconto > 0}">
-                                R$ ${produto.precoComDesconto}
-                            </c:when>
-                            <c:otherwise>
-                                -
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
                     <td class="actions">
                         <a href="/produtos/editar/${produto.id}" class="edit-btn">Editar</a>
-                        <form action="/produtos/excluir" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="${produto.id}">
-                            <input type="hidden" name="fornecedorId" value="${fornecedor.id}">
-                            <button type="submit" class="delete-btn">Excluir</button>
-                        </form>
+                        <c:if test="${produto.ativo}">
+                            <form action="/produtos/excluir" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="${produto.id}">
+                                <button type="submit" class="delete-btn">Excluir</button>
+                            </form>
+                        </c:if>
+                        <c:if test="${!produto.ativo}">
+                            <span style="color:#888;font-size:13px;">Produto inativo</span>
+                        </c:if>
                     </td>
                 </tr>
             </c:forEach>

@@ -3,8 +3,6 @@ package com.example.dunnas.service;
 import com.example.dunnas.model.entity.Produto;
 import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.model.repository.ProdutoRepository;
-import com.example.dunnas.model.repository.FornecedorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,11 +27,11 @@ public class ProdutoService {
     }
 
     public List<Produto> listarProdutos() {
-        return produtoRepository.findAll();
+        return produtoRepository.findByAtivoTrue();
     }
 
     public List<Produto> listarProdutosPorFornecedor(Long fornecedorId) {
-        return produtoRepository.findByFornecedorId(fornecedorId);
+        return produtoRepository.findByFornecedorIdAndAtivoTrue(fornecedorId);
     }
 
     public Optional<Produto> buscarPorId(Long id) {
@@ -51,6 +49,9 @@ public class ProdutoService {
     }
 
     public void excluirProduto(Long id) {
-        produtoRepository.deleteById(id);
+        Produto produto = produtoRepository.findById(id).orElseThrow();
+        produto.setAtivo(false);
+        produtoRepository.save(produto);
     }
+
 }

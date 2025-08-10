@@ -27,6 +27,9 @@ public class UsuarioService {
         return clienteRepository.findByUsuario(usuario).map(c -> (Usuario) c);
     }
 
+        public java.util.List<Usuario> listarUsuarios() {
+            return usuarioRepository.findAll();
+        }
     
     public Optional<Usuario> buscarPorEmail(String email) {
         Optional<Usuario> user = usuarioRepository.findByEmail(email);

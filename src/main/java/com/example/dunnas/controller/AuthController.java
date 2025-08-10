@@ -92,8 +92,10 @@ public class AuthController {
                 return "redirect:/produtos/produto-cliente";
             } else if (usuario.getRole().name().equals("FORNECEDOR")) {
                 return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + usuario.getId();
+            } else if (usuario.getRole().name().equals("ADMIN")) {
+                return "redirect:/admin";
             } else {
-                return "redirect:/home";
+                return "redirect:/login";
             }
         } catch (Exception e) {
             model.addAttribute("error", "Usuário ou senha inválidos.");
