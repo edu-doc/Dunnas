@@ -88,7 +88,13 @@ public class AuthController {
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge(24 * 60 * 60);
             response.addCookie(jwtCookie);
-            return "redirect:/home";
+            if (usuario.getRole().name().equals("CLIENTE")) {
+                return "redirect:/produtos/produto-cliente";
+            } else if (usuario.getRole().name().equals("FORNECEDOR")) {
+                return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + usuario.getId();
+            } else {
+                return "redirect:/home";
+            }
         } catch (Exception e) {
             model.addAttribute("error", "Usuário ou senha inválidos.");
             return "login";
