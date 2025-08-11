@@ -21,6 +21,16 @@
     </style>
 </head>
 <body>
+<c:if test="${not empty error}">
+    <div style="background:#e74c3c;color:#fff;padding:10px;border-radius:4px;margin-bottom:20px;">
+        ${error}
+    </div>
+</c:if>
+<c:if test="${not empty success}">
+    <div style="background:#27ae60;color:#fff;padding:10px;border-radius:4px;margin-bottom:20px;">
+        ${success}
+    </div>
+</c:if>
 <div class="container">
     <h1>Painel do Administrador</h1>
     <h2 class="section-title">Usuários</h2>

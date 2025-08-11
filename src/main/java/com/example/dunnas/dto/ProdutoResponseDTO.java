@@ -9,6 +9,7 @@ public class ProdutoResponseDTO {
     private BigDecimal preco;
     private Long fornecedorId;
     private String fornecedorNome;
+    private boolean ativo;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -27,4 +28,7 @@ public class ProdutoResponseDTO {
 
     public String getFornecedorNome() { return fornecedorNome; }
     public void setFornecedorNome(String fornecedorNome) { this.fornecedorNome = fornecedorNome; }
+
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
 }

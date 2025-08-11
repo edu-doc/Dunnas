@@ -1,4 +1,3 @@
-
 package com.example.dunnas.service;
 
 import com.example.dunnas.dto.CupomRequestDTO;
@@ -6,7 +5,6 @@ import com.example.dunnas.dto.CupomResponseDTO;
 import com.example.dunnas.model.entity.Cupom;
 import com.example.dunnas.model.repository.CupomRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +50,7 @@ public class CupomService {
         cupomRepository.save(cupom);
     }
 
+
     public Optional<Cupom> validarCupom(String codigo) {
         Optional<Cupom> cupomOpt = cupomRepository.findByCodigoAndAtivoTrue(codigo);
         if (cupomOpt.isPresent()) {
@@ -64,4 +63,32 @@ public class CupomService {
         return Optional.empty();
     }
 
+    public void atualizarCupom(Long id, String codigo, double desconto, String dataValidade, boolean ativo) {
+        Optional<Cupom> cupomOpt = cupomRepository.findById(id);
+        if (cupomOpt.isEmpty()) {
+            throw new RuntimeException("Cupom não encontrado");
+        }
+        Cupom cupom = cupomOpt.get();
+        cupom.setCodigo(codigo);
+        cupom.setDesconto(java.math.BigDecimal.valueOf(desconto));
+        cupom.setDataValidade(LocalDate.parse(dataValidade));
+        cupom.setAtivo(ativo);
+        cupomRepository.save(cupom);
+    }
+
+
+    public CupomResponseDTO buscarPorId(Long id) {
+        Optional<Cupom> cupomOpt = cupomRepository.findById(id);
+        if (cupomOpt.isEmpty()) {
+            throw new RuntimeException("Cupom não encontrado");
+        }
+        Cupom cupom = cupomOpt.get();
+        CupomResponseDTO dto = new CupomResponseDTO();
+        dto.setId(cupom.getId());
+        dto.setCodigo(cupom.getCodigo());
+        dto.setDesconto(cupom.getDesconto());
+        dto.setDataValidade(cupom.getDataValidade());
+        dto.setAtivo(cupom.isAtivo());
+        return dto;
+    }
 }

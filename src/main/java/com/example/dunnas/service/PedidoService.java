@@ -59,7 +59,11 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setFornecedor(fornecedor);
         pedido.setProdutos(produtos);
-        pedido.setValorTotal(valorTotal.subtract(desconto));
+        BigDecimal valorFinal = valorTotal.subtract(desconto);
+        if (valorFinal.compareTo(BigDecimal.ZERO) < 0) {
+            valorFinal = BigDecimal.ZERO;
+        }
+        pedido.setValorTotal(valorFinal);
         pedido.setDesconto(desconto);
         pedido.setCupom(dto.getCupom());
         pedido.setDataPedido(LocalDateTime.now());

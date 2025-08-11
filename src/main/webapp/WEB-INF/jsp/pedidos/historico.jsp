@@ -31,6 +31,7 @@
         </c:if>
         <div class="top-bar">
             <h2>Histórico de Pedidos</h2>
+                <div style="font-size:1.1rem;color:#007bff;font-weight:600;">Saldo: R$ ${saldo}</div>
             <form action="/produtos/produto-cliente" method="get" style="margin:0;">
                 <button type="submit" class="btn-voltar">Voltar</button>
             </form>

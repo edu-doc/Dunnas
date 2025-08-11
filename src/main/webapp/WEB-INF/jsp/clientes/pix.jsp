@@ -33,6 +33,9 @@
             </div>
             <button type="submit" class="btn-pix">Adicionar Saldo</button>
         </form>
+            <form action="/produtos/produto-cliente" method="get" style="margin-top:14px;">
+                <button type="submit" class="btn-pix" style="background:linear-gradient(90deg,#6c757d 60%,#343a40 100%);margin-top:0;">Voltar</button>
+            </form>
     </div>
 </body>
 </html>

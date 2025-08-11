@@ -38,6 +38,9 @@ public class PedidoController {
     private PedidoService pedidoService;
 
     @Autowired
+    private com.example.dunnas.service.ClienteService clienteService;
+
+    @Autowired
     private FornecedorService fornecedorService;
 
     @Autowired
@@ -80,6 +83,15 @@ public class PedidoController {
         if (dto.getCupom() != null && dto.getCupom().trim().isEmpty()) {
             dto.setCupom(null);
         }
+            // Validação: pedido deve ter ao menos um produto
+            if (dto.getProdutoIds() == null || dto.getProdutoIds().isEmpty()) {
+                model.addAttribute("error", "Selecione ao menos um produto para finalizar o pedido.");
+                Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
+                List<Produto> produtos = produtoService.listarProdutosPorFornecedor(dto.getFornecedorId());
+                model.addAttribute("fornecedor", fornecedor);
+                model.addAttribute("produtos", produtos);
+                return "pedidos/novo-pedido";
+            }
         if (dto.getCupom() != null) {
             java.util.Optional<Cupom> cupomOpt = cupomService.validarCupom(dto.getCupom());
             if (cupomOpt.isEmpty()) {
@@ -101,6 +113,9 @@ public class PedidoController {
         Long clienteId = jwtUtil.extractUserId(jwtToken);
         List<Pedido> pedidos = pedidoService.listarPedidosPorCliente(clienteId);
         model.addAttribute("pedidos", pedidos);
+        // Adiciona saldo do cliente
+        java.math.BigDecimal saldo = clienteService.buscarPorId(clienteId).getSaldo();
+        model.addAttribute("saldo", saldo);
         return "pedidos/historico";
     }
 

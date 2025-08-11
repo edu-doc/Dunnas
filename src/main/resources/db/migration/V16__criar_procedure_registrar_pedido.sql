@@ -20,7 +20,7 @@ BEGIN
 
     -- Registra histórico da transação --
     INSERT INTO historico_transacoes (pedido_id, cliente_id, fornecedor_id, valor, data_transacao, tipo)
-    VALUES (p_pedido_id, v_cliente_id, v_fornecedor_id, v_valor, NOW(), 'CRIACAO_PEDIDO');
+    VALUES (p_pedido_id, v_cliente_id, v_fornecedor_id, v_valor, NOW(), 'PENDENTE');
 
     RETURN TRUE;
 END;

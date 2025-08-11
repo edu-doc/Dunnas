@@ -101,15 +101,19 @@
                 <div class="profile-info"><span class="profile-label">Usuário:</span> ${usuario.usuario}</div>
                 <div class="profile-info"><span class="profile-label">Email:</span> ${usuario.email}</div>
                 <div class="profile-info"><span class="profile-label">Perfil:</span> ${usuario.role}</div>
-                <div class="profile-info"><span class="profile-label">Saldo:</span> R$ ${usuario.saldo}</div>
+                <c:if test="${usuario.role == 'CLIENTE'}">
+                    <div class="profile-info"><span class="profile-label">Saldo:</span> R$ ${usuario.saldo}</div>
+                </c:if>
             </c:if>
             <div style="margin-top:18px;color:#555;font-size:1rem;">Você está logado no sistema.</div>
         </div>
-        <div class="menu">
-            <form action="/clientes/pix" method="get" style="margin:0;">
-                <button type="submit" class="menu-btn" style="background:#28a745;">Adicionar Saldo via PIX</button>
-            </form>
-        </div>
+        <c:if test="${usuario.role == 'CLIENTE'}">
+            <div class="menu">
+                <form action="/clientes/pix" method="get" style="margin:0;">
+                    <button type="submit" class="menu-btn" style="background:#28a745;">Adicionar Saldo via PIX</button>
+                </form>
+            </div>
+        </c:if>
         <div style="display:flex;gap:18px;justify-content:center;margin-top:28px;">
             <c:choose>
                 <c:when test="${usuario.role == 'FORNECEDOR'}">

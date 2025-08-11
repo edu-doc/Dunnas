@@ -20,6 +20,9 @@
 </head>
 <body>
     <div class="container">
+        <c:if test="${not empty error}">
+            <div style="color:#d9534f;background:#fbeeea;padding:10px 15px;border-radius:5px;margin-bottom:18px;text-align:center;font-weight:bold;">${error}</div>
+        </c:if>
         <h2>Novo Pedido - ${fornecedor.nome}</h2>
         <form action="/pedidos/criar" method="post">
             <input type="hidden" name="fornecedorId" value="${fornecedor.id}">

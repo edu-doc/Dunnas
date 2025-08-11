@@ -39,6 +39,7 @@ public class ProdutoService {
         response.setPreco(salvo.getPreco());
         response.setFornecedorId(fornecedor.getId());
         response.setFornecedorNome(fornecedor.getNome());
+        response.setAtivo(salvo.isAtivo());
         return response;
     }
 
@@ -52,6 +53,7 @@ public class ProdutoService {
             dto.setPreco(produto.getPreco());
             dto.setFornecedorId(produto.getFornecedor().getId());
             dto.setFornecedorNome(produto.getFornecedor().getNome());
+            dto.setAtivo(produto.isAtivo());
             return dto;
         }).toList();
     }
@@ -71,6 +73,7 @@ public class ProdutoService {
         existente.setPreco(produto.getPreco());
         existente.setPrecoComDesconto(produto.getPrecoComDesconto());
         existente.setFornecedor(produto.getFornecedor());
+        existente.setAtivo(produto.isAtivo());
         return produtoRepository.save(existente);
     }
 

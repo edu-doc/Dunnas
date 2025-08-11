@@ -11,33 +11,25 @@ DECLARE
     v_status VARCHAR;
     v_saldo_cliente NUMERIC(15,2);
 BEGIN
-    -- Busca dados do pedido --
     SELECT cliente_id, fornecedor_id, valor_total, status INTO v_cliente_id, v_fornecedor_id, v_valor, v_status
     FROM pedidos WHERE id = p_pedido_id;
 
-    -- Validação: pedido existe e não está pago --
     IF v_status IS NULL OR v_status = 'PAGO' THEN
         RETURN FALSE;
     END IF;
 
-    -- Busca saldo do cliente --
     SELECT saldo INTO v_saldo_cliente FROM clientes WHERE id = v_cliente_id;
     IF v_saldo_cliente IS NULL OR v_saldo_cliente < v_valor THEN
         RETURN FALSE;
     END IF;
 
-    -- Debita saldo do cliente --
     UPDATE clientes SET saldo = saldo - v_valor WHERE id = v_cliente_id;
-
-    -- Credita saldo do fornecedor --
     UPDATE fornecedores SET saldo = saldo + v_valor WHERE id = v_fornecedor_id;
-
-    -- Atualiza status do pedido --
     UPDATE pedidos SET status = 'PAGO' WHERE id = p_pedido_id;
 
-    -- Registra histórico da transação --
-    INSERT INTO historico_transacoes (pedido_id, cliente_id, fornecedor_id, valor, data_transacao, tipo)
-    VALUES (p_pedido_id, v_cliente_id, v_fornecedor_id, v_valor, NOW(), 'PAGAMENTO');
+    -- Atualiza histórico: muda tipo de PENDENTE para PAGO
+    UPDATE historico_transacoes SET tipo = 'PAGO', data_transacao = NOW()
+    WHERE pedido_id = p_pedido_id AND tipo = 'PENDENTE';
 
     RETURN TRUE;
 END;
