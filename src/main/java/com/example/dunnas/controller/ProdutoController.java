@@ -1,7 +1,13 @@
 package com.example.dunnas.controller;
 
+import com.example.dunnas.dto.ProdutoRequestDTO;
+import com.example.dunnas.dto.ProdutoResponseDTO;
+import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.entity.Produto;
 import java.math.BigDecimal;
+import java.util.List;
+
+import com.example.dunnas.service.ClienteService;
 import com.example.dunnas.service.FornecedorService;
 import com.example.dunnas.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
+    @Autowired
+    private ClienteService clienteService;
 
     @Autowired
     private ProdutoService produtoService;
@@ -71,7 +79,9 @@ public class ProdutoController {
     @GetMapping("/produtos-fornecedor")
     public String produtosFornecedor(Model model, @CookieValue("jwt_token") String jwtToken) {
         Long fornecedorId = jwtUtil.extractUserId(jwtToken);
-        model.addAttribute("produtos", produtoService.listarProdutosPorFornecedor(fornecedorId));
+        List<ProdutoResponseDTO> produtos = produtoService.listarProdutos().stream()
+            .filter(p -> p.getFornecedorId().equals(fornecedorId)).toList();
+        model.addAttribute("produtos", produtos);
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/produtos-fornecedor";
     }
@@ -81,24 +91,28 @@ public class ProdutoController {
 
     @GetMapping("/produto-cliente")
     public String produtosCliente(Model model, @CookieValue("jwt_token") String jwtToken) {
-        model.addAttribute("produtos", produtoService.listarProdutos());
+        List<ProdutoResponseDTO> produtos = produtoService.listarProdutos();
+        model.addAttribute("produtos", produtos);
         Long clienteId = jwtUtil.extractUserId(jwtToken);
-        model.addAttribute("clienteId", clienteId);
+        Cliente cliente = clienteService.buscarPorId(clienteId);
+        model.addAttribute("usuario", cliente);
         return "produtos/produto-cliente";
     }
 
     @GetMapping("/cadastro")
     public String cadastroProduto(Model model, @CookieValue("jwt_token") String jwtToken) {
         Long fornecedorId = jwtUtil.extractUserId(jwtToken);
-        model.addAttribute("produto", new Produto());
+        ProdutoRequestDTO produtoDTO = new ProdutoRequestDTO();
+        produtoDTO.setFornecedorId(fornecedorId);
+        model.addAttribute("produto", produtoDTO);
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/cadastro-produto";
     }
 
     @PostMapping("/salvar")
-    public String salvarProduto(@ModelAttribute Produto produto, @CookieValue("jwt_token") String jwtToken) {
-        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
-        produtoService.cadastrarProduto(produto, fornecedorId);
+    public String salvarProduto(@ModelAttribute ProdutoRequestDTO produtoDTO, @CookieValue("jwt_token") String jwtToken) {
+        produtoDTO.setFornecedorId(jwtUtil.extractUserId(jwtToken));
+        produtoService.cadastrarProduto(produtoDTO);
         return "redirect:/produtos/produtos-fornecedor";
     }
 }

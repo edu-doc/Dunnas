@@ -39,6 +39,7 @@
 </head>
 <body>
     <div class="container">
+    <div style="margin-bottom:18px;font-size:1.15rem;color:#007bff;font-weight:600;">Saldo atual: R$ <c:out value="${fornecedor.saldo}"/></div>
         <div class="top-bar" style="justify-content:space-between;align-items:center;">
             <h2 style="margin:0;">Meus Produtos</h2>
             <div style="display:flex;gap:12px;align-items:center;">

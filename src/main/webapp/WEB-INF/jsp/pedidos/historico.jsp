@@ -19,6 +19,16 @@
 </head>
 <body>
     <div class="container">
+        <c:if test="${not empty success}">
+            <div style="background:#d4edda;color:#155724;padding:12px 18px;border-radius:7px;margin-bottom:18px;border:1px solid #c3e6cb;font-weight:500;">
+                ${success}
+            </div>
+        </c:if>
+        <c:if test="${not empty error}">
+            <div style="background:#f8d7da;color:#721c24;padding:12px 18px;border-radius:7px;margin-bottom:18px;border:1px solid #f5c6cb;font-weight:500;">
+                ${error}
+            </div>
+        </c:if>
         <div class="top-bar">
             <h2>Histórico de Pedidos</h2>
             <form action="/produtos/produto-cliente" method="get" style="margin:0;">
@@ -34,6 +44,7 @@
                 <th>Desconto</th>
                 <th>Status</th>
                 <th>Data</th>
+                <th>Ações</th>
             </tr>
             <c:forEach var="pedido" items="${pedidos}">
                 <tr>
@@ -48,6 +59,22 @@
                     <td>R$ ${pedido.desconto}</td>
                     <td>${pedido.status}</td>
                     <td>${pedido.dataPedido}</td>
+                    <td>
+                        <c:if test="${pedido.status == 'PENDENTE'}">
+                            <form action="/pedidos/pagar/${pedido.id}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-voltar" style="background:#28a745;">Pagar</button>
+                            </form>
+                            <form action="/pedidos/cancelar/${pedido.id}" method="post" style="display:inline; margin-left:8px;">
+                                <button type="submit" class="btn-voltar" style="background:#dc3545;">Cancelar</button>
+                            </form>
+                        </c:if>
+                        <c:if test="${pedido.status == 'PAGO'}">
+                            <span style="color:#28a745;">Pago</span>
+                        </c:if>
+                        <c:if test="${pedido.status == 'CANCELADO'}">
+                            <span style="color:#dc3545;">Cancelado</span>
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
         </table>

@@ -2,6 +2,8 @@ package com.example.dunnas.controller;
 
 import com.example.dunnas.dto.FornecedorRequestDTO;
 import com.example.dunnas.dto.FornecedorResponseDTO;
+import com.example.dunnas.model.entity.Fornecedor;
+import com.example.dunnas.security.JwtUtil;
 import com.example.dunnas.service.FornecedorService;
 
 import jakarta.validation.Valid;
@@ -9,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -19,7 +22,7 @@ public class FornecedorController {
     private FornecedorService fornecedorService;
 
     @Autowired
-    private com.example.dunnas.security.JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
@@ -28,7 +31,7 @@ public class FornecedorController {
     }
 
     @PostMapping("/salvar")
-    public String salvarFornecedor(@Valid @ModelAttribute FornecedorRequestDTO fornecedorRequestDTO, org.springframework.validation.BindingResult result, Model model) {
+    public String salvarFornecedor(@Valid @ModelAttribute FornecedorRequestDTO fornecedorRequestDTO, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("error", "CNPJ inválido.");
             model.addAttribute("fornecedor", fornecedorRequestDTO);
@@ -60,7 +63,6 @@ public class FornecedorController {
 
     @GetMapping("/sucesso")
     public String sucessoCadastro(Model model) {
-        // O email já está no model se vier do cadastro, senão apenas renderiza a tela
         return "fornecedores/sucesso";
     }
 
@@ -95,7 +97,7 @@ public class FornecedorController {
     @GetMapping("/perfil")
     public String perfilFornecedor(Model model, @CookieValue("jwt_token") String jwtToken) {
         Long fornecedorId = jwtUtil.extractUserId(jwtToken);
-        com.example.dunnas.model.entity.Fornecedor fornecedorEntity = fornecedorService.buscarPorId(fornecedorId);
+        Fornecedor fornecedorEntity = fornecedorService.buscarPorId(fornecedorId);
         model.addAttribute("usuario", fornecedorEntity);
         return "home";
     }

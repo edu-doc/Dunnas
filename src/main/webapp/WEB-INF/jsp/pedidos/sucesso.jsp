@@ -66,14 +66,9 @@
             <span><strong>Número do pedido:</strong> ${pedido.id}</span>
             <span><strong>Valor total:</strong> R$ ${pedido.valorTotal}</span>
             <span><strong>Desconto aplicado:</strong> R$ ${pedido.desconto}</span>
-            <c:choose>
-                <c:when test="${pedido.cupom != null && !pedido.cupom.isEmpty() && pedido.desconto == 0}">
-                    <span style="color:#dc3545;"><strong>Cupom informado:</strong> ${pedido.cupom} (inválido ou expirado)</span>
-                </c:when>
-                <c:when test="${pedido.cupom != null && !pedido.cupom.isEmpty() && pedido.desconto > 0}">
-                    <span style="color:#28a745;"><strong>Cupom aplicado:</strong> ${pedido.cupom}</span>
-                </c:when>
-            </c:choose>
+            <c:if test="${pedido.cupom != null && !pedido.cupom.isEmpty() && pedido.desconto > 0}">
+                <span style="color:#28a745;"><strong>Cupom aplicado:</strong> ${pedido.cupom}</span>
+            </c:if>
         </div>
     <a href="/pedidos/historico" class="btn-historico">Ver histórico de pedidos</a>
     </div>

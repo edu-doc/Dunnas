@@ -15,7 +15,18 @@ public class Fornecedor extends Usuario{
     @Column(name = "cnpj",  nullable = false, unique = true, length = 14)
     private String cnpj;
 
+    @Column(name = "saldo", nullable = false)
+    private java.math.BigDecimal saldo = java.math.BigDecimal.ZERO;
+
     public Fornecedor() {}
+
+    public java.math.BigDecimal getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(java.math.BigDecimal saldo) {
+        this.saldo = saldo;
+    }
 
     public String getNome() {
         return nome;

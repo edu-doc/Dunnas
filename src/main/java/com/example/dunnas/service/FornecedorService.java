@@ -1,13 +1,17 @@
 package com.example.dunnas.service;
 
+import com.example.dunnas.dto.FornecedorRequestDTO;
+import com.example.dunnas.dto.FornecedorResponseDTO;
 import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.FornecedorException;
 import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.model.repository.FornecedorRepository;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class FornecedorService {
@@ -16,7 +20,7 @@ public class FornecedorService {
 
     private final EmailService emailService;
 
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public FornecedorService(FornecedorRepository fornecedorRepository, EmailService emailService, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.fornecedorRepository = fornecedorRepository;
@@ -24,7 +28,7 @@ public class FornecedorService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public com.example.dunnas.dto.FornecedorResponseDTO cadastrarFornecedor(com.example.dunnas.dto.FornecedorRequestDTO dto) {
+    public FornecedorResponseDTO cadastrarFornecedor(FornecedorRequestDTO dto) {
     
         if (buscarPorUsuario(dto.getUsuario()).isPresent()) {
             throw new RuntimeException("Nome de usuário já cadastrado. Escolha outro.");
@@ -45,13 +49,13 @@ public class FornecedorService {
         fornecedor.setRole(UsuarioRole.FORNECEDOR);
         fornecedor.setVerificado(false);
 
-        String codigo = String.format("%06d", new java.util.Random().nextInt(999999));
+        String codigo = String.format("%06d", new Random().nextInt(999999));
         fornecedor.setCodigoVerificacao(codigo);
 
         Fornecedor fornecedorSalvo = fornecedorRepository.save(fornecedor);
         emailService.enviarEmailVerificacao(fornecedorSalvo.getEmail(), codigo);
 
-        return new com.example.dunnas.dto.FornecedorResponseDTO(
+        return new FornecedorResponseDTO(
             fornecedorSalvo.getId(),
             fornecedorSalvo.getNome(),
             fornecedorSalvo.getCnpj(),
@@ -59,6 +63,18 @@ public class FornecedorService {
             fornecedorSalvo.getUsuario(),
             fornecedorSalvo.isVerificado()
         );
+    }
+
+    public FornecedorResponseDTO salvarFornecedor(Fornecedor fornecedor) {
+        Fornecedor saved = fornecedorRepository.save(fornecedor);
+        FornecedorResponseDTO dto = new FornecedorResponseDTO();
+        dto.setId(saved.getId());
+        dto.setNome(saved.getNome());
+        dto.setCnpj(saved.getCnpj());
+        dto.setEmail(saved.getEmail());
+        dto.setUsuario(saved.getUsuario());
+        dto.setSaldo(saved.getSaldo());
+        return dto;
     }
 
     public Fornecedor buscarPorId(Long id) {

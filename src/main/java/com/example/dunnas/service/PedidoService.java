@@ -13,9 +13,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PedidoService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final PedidoRepository pedidoRepository;
     private final ClienteService clienteService;
     private final FornecedorService fornecedorService;
@@ -60,6 +67,10 @@ public class PedidoService {
 
         pedido = pedidoRepository.save(pedido);
 
+        entityManager.createNativeQuery("SELECT registrar_criacao_pedido(:pedidoId)")
+                .setParameter("pedidoId", pedido.getId())
+                .getSingleResult();
+
         PedidoResponseDTO response = new PedidoResponseDTO();
         response.setId(pedido.getId());
         response.setClienteId(cliente.getId());
@@ -72,6 +83,34 @@ public class PedidoService {
         response.setStatus(pedido.getStatus());
 
         return response;
+    }
+
+    public Pedido buscarPorId(Long id) {
+        return pedidoRepository.findById(id).orElse(null);
+    }
+
+    public PedidoResponseDTO salvarPedido(Pedido pedido) {
+        Pedido saved = pedidoRepository.save(pedido);
+        PedidoResponseDTO dto = new PedidoResponseDTO();
+        dto.setId(saved.getId());
+        dto.setClienteId(saved.getCliente().getId());
+        dto.setFornecedorId(saved.getFornecedor().getId());
+        dto.setProdutoIds(saved.getProdutos().stream().map(p -> p.getId()).toList());
+        dto.setValorTotal(saved.getValorTotal());
+        dto.setDesconto(saved.getDesconto());
+        dto.setCupom(saved.getCupom());
+        dto.setDataPedido(saved.getDataPedido());
+        dto.setStatus(saved.getStatus());
+        return dto;
+    }
+
+    @Transactional
+    public boolean cancelarPedido(Long pedidoId) {
+        Boolean result = (Boolean) entityManager
+                .createNativeQuery("SELECT processar_cancelamento(:pedidoId)")
+                .setParameter("pedidoId", pedidoId)
+                .getSingleResult();
+        return result != null && result;
     }
 
     public List<Pedido> listarPedidosPorCliente(Long clienteId) {

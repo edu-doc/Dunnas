@@ -7,6 +7,7 @@ public class FornecedorResponseDTO {
     private String email;
     private String usuario;
     private boolean verificado;
+    private java.math.BigDecimal saldo;
 
     public FornecedorResponseDTO() {}
 
@@ -17,6 +18,7 @@ public class FornecedorResponseDTO {
         this.email = email;
         this.usuario = usuario;
         this.verificado = verificado;
+        this.saldo = java.math.BigDecimal.ZERO; // Initialize saldo to zero
     }
 
     public Long getId() { return id; }
@@ -31,4 +33,6 @@ public class FornecedorResponseDTO {
     public void setUsuario(String usuario) { this.usuario = usuario; }
     public boolean isVerificado() { return verificado; }
     public void setVerificado(boolean verificado) { this.verificado = verificado; }
+    public java.math.BigDecimal getSaldo() { return saldo; }
+    public void setSaldo(java.math.BigDecimal saldo) { this.saldo = saldo; }
 }

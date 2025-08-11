@@ -2,6 +2,8 @@ package com.example.dunnas.controller;
 
 import com.example.dunnas.dto.ClienteRequestDTO;
 import com.example.dunnas.dto.ClienteResponseDTO;
+import com.example.dunnas.model.entity.Cliente;
+import com.example.dunnas.security.JwtUtil;
 import com.example.dunnas.service.ClienteService;
 
 import jakarta.validation.Valid;
@@ -9,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,7 +23,28 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @Autowired
-    private com.example.dunnas.security.JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
+
+    @GetMapping("/pix")
+    public String mostrarFormularioPix(Model model, @CookieValue("jwt_token") String jwtToken) {
+        Long clienteId = jwtUtil.extractUserId(jwtToken);
+        model.addAttribute("clienteId", clienteId);
+        return "clientes/pix";
+    }
+
+    @PostMapping("/pix")
+    public String processarPix(@RequestParam("valor") java.math.BigDecimal valor,
+                              @CookieValue("jwt_token") String jwtToken,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Long clienteId = jwtUtil.extractUserId(jwtToken);
+        boolean sucesso = clienteService.adicionarSaldo(clienteId, valor);
+        if (sucesso) {
+            redirectAttributes.addFlashAttribute("success", "Saldo adicionado com sucesso!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Não foi possível adicionar saldo. Valor inválido ou cliente inexistente.");
+        }
+        return "redirect:/clientes/perfil";
+    }
 
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
@@ -29,7 +53,7 @@ public class ClienteController {
     }
 
     @PostMapping("/salvar")
-    public String salvarCliente(@Valid @ModelAttribute ClienteRequestDTO clienteRequestDTO, org.springframework.validation.BindingResult result, Model model) {
+    public String salvarCliente(@Valid @ModelAttribute ClienteRequestDTO clienteRequestDTO, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("error", "CPF inválido.");
             model.addAttribute("cliente", clienteRequestDTO);
@@ -61,15 +85,14 @@ public class ClienteController {
 
     @GetMapping("/sucesso")
     public String sucessoCadastro(Model model) {
-        // O email já está no model se vier do cadastro, senão apenas renderiza a tela
         return "clientes/sucesso";
     }
 
     @GetMapping("/perfil")
     public String perfilCliente(Model model, @CookieValue("jwt_token") String jwtToken) {
         Long clienteId = jwtUtil.extractUserId(jwtToken);
-        com.example.dunnas.model.entity.Cliente clienteEntity = clienteService.buscarPorId(clienteId);
-        // Adiciona dados do cliente como 'usuario' para home.jsp
+        Cliente clienteEntity = clienteService.buscarPorId(clienteId);
+
         model.addAttribute("usuario", clienteEntity);
         return "home";
     }

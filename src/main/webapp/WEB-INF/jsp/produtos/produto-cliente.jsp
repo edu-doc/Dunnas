@@ -27,11 +27,15 @@
                 <form action="/pedidos/historico" method="get" style="margin:0;">
                     <button type="submit" style="background:linear-gradient(90deg,#007bff 60%,#0056b3 100%);color:#fff;padding:10px 28px;border:none;border-radius:7px;text-decoration:none;font-size:1.08rem;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;display:inline-block;">Histórico de Pedidos</button>
                 </form>
+                <form action="/clientes/pix" method="get" style="margin:0;display:inline;">
+                    <button type="submit" style="background:#28a745;color:#fff;border:none;padding:10px 28px;border-radius:7px;cursor:pointer;font-size:1.08rem;font-weight:bold;">Adicionar Saldo via PIX</button>
+                </form>
                 <form action="/auth/logout" method="get" style="margin:0;display:inline;">
                     <button type="submit" style="background:#dc3545;color:#fff;border:none;padding:10px 28px;border-radius:7px;cursor:pointer;font-size:1.08rem;font-weight:bold;">Logout</button>
                 </form>
             </div>
         </div>
+        <div style="margin-bottom:18px;font-size:1.15rem;color:#007bff;font-weight:600;">Saldo atual: R$ <c:out value="${usuario.saldo}"/></div>
         <table>
             <tr>
                 <th>Nome</th>
@@ -45,10 +49,10 @@
                     <td>${produto.nome}</td>
                     <td>${produto.descricao}</td>
                     <td>R$ ${produto.preco}</td>
-                    <td>${produto.fornecedor.nome}</td>
+                <td>${produto.fornecedorNome}</td>
                     <td>
                         <form action="/pedidos/novo" method="get">
-                            <input type="hidden" name="fornecedorId" value="${produto.fornecedor.id}">
+                    <input type="hidden" name="fornecedorId" value="${produto.fornecedorId}">
                             <button type="submit" class="pedido-btn">Fazer Pedido</button>
                         </form>
                     </td>

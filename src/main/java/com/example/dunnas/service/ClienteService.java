@@ -1,9 +1,15 @@
 package com.example.dunnas.service;
 
+import com.example.dunnas.dto.ClienteRequestDTO;
+import com.example.dunnas.dto.ClienteResponseDTO;
 import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.ClienteException;
 import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.repository.ClienteRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -11,11 +17,13 @@ import java.util.Optional;
 @Service
 public class ClienteService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final ClienteRepository clienteRepository;
 
     private final EmailService emailService;
 
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public  ClienteService(ClienteRepository clienteRepository, EmailService emailService, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
@@ -23,7 +31,7 @@ public class ClienteService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public com.example.dunnas.dto.ClienteResponseDTO cadastrarCliente(com.example.dunnas.dto.ClienteRequestDTO dto) {
+    public ClienteResponseDTO cadastrarCliente(ClienteRequestDTO dto) {
     
         if (buscarPorUsuario(dto.getUsuario()).isPresent()) {
             throw new RuntimeException("Nome de usuário já cadastrado. Escolha outro.");
@@ -63,6 +71,16 @@ public class ClienteService {
             clienteSalvo.getRole(),
             clienteSalvo.isVerificado()
         );
+    }
+
+    @Transactional
+    public boolean adicionarSaldo(Long clienteId, java.math.BigDecimal valor) {
+        Boolean result = (Boolean) entityManager
+                .createNativeQuery("SELECT adicionar_saldo_cliente(:clienteId, :valor)")
+                .setParameter("clienteId", clienteId)
+                .setParameter("valor", valor)
+                .getSingleResult();
+        return result != null && result;
     }
 
     public Cliente buscarPorId(Long id) {
