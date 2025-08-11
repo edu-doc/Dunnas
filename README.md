@@ -178,6 +178,6 @@ src/
 
 ## Finalidade
 
-O Projeto Dunnas foi criado para facilitar a gestão de operações comerciais entre fornecedores e clientes, automatizando processos de pedidos, pagamentos, controle de produtos e cupons, além de fornecer um painel administrativo completo.
+O Projeto Dunnas foi criado para facilitar a gestão de operações comerciais entre fornecedores e clientes, automatizando processos de pedidos, pagamentos, controle de produtos e cupons.
 
 ---
