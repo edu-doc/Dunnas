@@ -5,6 +5,10 @@ import com.example.dunnas.dto.ClienteResponseDTO;
 import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.ClienteException;
 import com.example.dunnas.model.entity.Cliente;
+import br.com.caelum.stella.validation.CPFValidator;
+import org.apache.commons.validator.routines.EmailValidator;
+import br.com.caelum.stella.validation.CPFValidator;
+import org.apache.commons.validator.routines.EmailValidator;
 import com.example.dunnas.model.repository.ClienteRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -42,6 +46,18 @@ public class ClienteService {
         if (buscarPorCpf(dto.getCpf()).isPresent()) {
             throw new RuntimeException("CPF já cadastrado. Use outro CPF.");
         }
+
+        // Validação de CPF
+        try {
+            new CPFValidator().assertValid(dto.getCpf());
+        } catch (br.com.caelum.stella.validation.InvalidStateException e) {
+            throw new RuntimeException("CPF inválido! Por favor, insira um CPF válido.");
+        }
+        
+            // Validação de e-mail
+            if (dto.getEmail() != null && !EmailValidator.getInstance().isValid(dto.getEmail())) {
+                throw new RuntimeException("E-mail inválido");
+            }
 
         Cliente cliente = new Cliente();
         cliente.setNome(dto.getNome());
@@ -128,6 +144,14 @@ public class ClienteService {
     }
     
     public Cliente criarClienteAdmin(String usuario, String senha, String email) {
+            // Validação de CPF
+            if (usuario != null && usuario.length() == 11) {
+                new CPFValidator().assertValid(usuario);
+            }
+            // Validação de e-mail
+            if (!EmailValidator.getInstance().isValid(email)) {
+                throw new RuntimeException("E-mail inválido");
+            }
         if (buscarPorUsuario(usuario).isPresent()) {
             throw new RuntimeException("Usuário admin já existe.");
         }

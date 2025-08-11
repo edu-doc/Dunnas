@@ -8,6 +8,7 @@ public class PedidoRequestDTO {
     private Long fornecedorId;
     private List<Long> produtoIds;
     private String cupom;
+    private List<QuantidadeProdutoDTO> quantidades;
 
     public Long getClienteId() {
         return clienteId;
@@ -39,6 +40,14 @@ public class PedidoRequestDTO {
 
     public void setCupom(String cupom) {
         this.cupom = cupom;
+    }
+
+    public java.util.List<QuantidadeProdutoDTO> getQuantidades() {
+        return quantidades;
+    }
+
+    public void setQuantidades(java.util.List<QuantidadeProdutoDTO> quantidades) {
+        this.quantidades = quantidades;
     }
 
 }

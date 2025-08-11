@@ -3,7 +3,6 @@ package com.example.dunnas.controller;
 import com.example.dunnas.dto.FornecedorRequestDTO;
 import com.example.dunnas.dto.FornecedorResponseDTO;
 import com.example.dunnas.model.entity.Fornecedor;
-import com.example.dunnas.security.JwtUtil;
 import com.example.dunnas.service.FornecedorService;
 
 import jakarta.validation.Valid;
@@ -21,8 +20,6 @@ public class FornecedorController {
     @Autowired
     private FornecedorService fornecedorService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
@@ -95,9 +92,10 @@ public class FornecedorController {
     }
 
     @GetMapping("/perfil")
-    public String perfilFornecedor(Model model, @CookieValue("jwt_token") String jwtToken) {
-        Long fornecedorId = jwtUtil.extractUserId(jwtToken);
-        Fornecedor fornecedorEntity = fornecedorService.buscarPorId(fornecedorId);
+    public String perfilFornecedor(Model model, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Fornecedor fornecedorEntity = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
         model.addAttribute("usuario", fornecedorEntity);
         return "home";
     }

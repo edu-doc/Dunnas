@@ -7,7 +7,7 @@ import com.example.dunnas.dto.CupomResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +19,38 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+    @PostMapping("/usuario/excluir")
+    public String excluirUsuario(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/login";
+        }
+        try {
+            usuarioService.excluirUsuario(id);
+            model.addAttribute("success", "Usuário excluído com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("usuarios", usuarioService.listarUsuarios());
+        List<CupomResponseDTO> cupons = cupomService.listarCupons();
+        model.addAttribute("cupons", cupons);
+        return "admin/painel";
+    }
+    @PostMapping("/cupom/excluir")
+    public String excluirCupom(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/login";
+        }
+        try {
+            cupomService.excluirCupom(id);
+            model.addAttribute("success", "Cupom excluído com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("usuarios", usuarioService.listarUsuarios());
+        List<CupomResponseDTO> cupons = cupomService.listarCupons();
+        model.addAttribute("cupons", cupons);
+        return "admin/painel";
+    }
 
     @Autowired
     private CupomService cupomService;
@@ -26,13 +58,10 @@ public class AdminController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @Autowired
-    private com.example.dunnas.security.JwtUtil jwtUtil;
 
     @GetMapping
-    public String painelAdmin(Model model, @CookieValue("jwt_token") String jwtToken) {
-        String role = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(role)) {
+    public String painelAdmin(Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
         model.addAttribute("usuarios", usuarioService.listarUsuarios());
@@ -44,9 +73,8 @@ public class AdminController {
     @PostMapping("/cupom/criar")
     public String criarCupom(@ModelAttribute CupomRequestDTO cupomRequestDTO,
                              Model model,
-                             @CookieValue("jwt_token") String jwtToken) {
-        String role = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(role)) {
+                             Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
         try {
@@ -67,9 +95,8 @@ public class AdminController {
                                    @RequestParam("dataValidade") String dataValidade,
                                    @RequestParam("ativo") boolean ativo,
                                    Model model,
-                                   @CookieValue("jwt_token") String jwtToken) {
-        String userRole = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(userRole)) {
+                                   Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
         try {
@@ -84,9 +111,8 @@ public class AdminController {
         return "admin/painel";
     }
     @GetMapping("/cupom/editar")
-    public String editarCupom(@RequestParam("id") Long id, Model model, @CookieValue("jwt_token") String jwtToken) {
-        String role = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(role)) {
+    public String editarCupom(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
     CupomResponseDTO cupom = cupomService.buscarPorId(id);
@@ -102,9 +128,8 @@ public class AdminController {
                                      @RequestParam("email") String email,
                                      @RequestParam(value = "senha", required = false) String senha,
                                      Model model,
-                                     @CookieValue("jwt_token") String jwtToken) {
-        String userRole = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(userRole)) {
+                                     Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
         try {
@@ -119,9 +144,8 @@ public class AdminController {
         return "admin/painel";
     }
     @GetMapping("/usuario/editar")
-    public String editarUsuario(@RequestParam("id") Long id, Model model, @CookieValue("jwt_token") String jwtToken) {
-        String role = jwtUtil.extractRole(jwtToken);
-        if (!"ADMIN".equals(role)) {
+    public String editarUsuario(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
     com.example.dunnas.model.entity.Usuario usuario = usuarioService.buscarPorId(id);

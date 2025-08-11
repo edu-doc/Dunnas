@@ -4,62 +4,77 @@
 <head>
     <title>Pedido Realizado</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(120deg, #e0e7ff 0%, #f5f5f5 100%); }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #232526 0%, #414345 100%);
+            min-height: 100vh;
+        }
         .container {
-            max-width: 420px;
-            margin: 60px auto;
+            max-width: 480px;
+            margin: 70px auto;
             background: #fff;
-            padding: 38px 32px 32px 32px;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            padding: 48px 38px 38px 38px;
+            border-radius: 22px;
+            box-shadow: 0 8px 36px rgba(0,0,0,0.18);
+            text-align: center;
+        }
+        .branding {
+            font-size: 1.25rem;
+            color: #d90429;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-bottom: 18px;
             text-align: center;
         }
         .icon-success {
-            font-size: 54px;
+            font-size: 70px;
             color: #28a745;
-            margin-bottom: 18px;
+            margin-bottom: 22px;
         }
         h2 {
-            color: #28a745;
-            margin-bottom: 18px;
-            font-size: 2rem;
-            font-weight: 700;
+            color: #d90429;
+            margin-bottom: 22px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
         .info {
-            margin-bottom: 28px;
-            color: #333;
-            font-size: 1.08rem;
+            margin-bottom: 32px;
+            color: #232526;
+            font-size: 1.12rem;
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 18px 0;
-            box-shadow: 0 1px 4px rgba(40,167,69,0.07);
+            border-radius: 10px;
+            padding: 22px 0;
+            box-shadow: 0 2px 8px rgba(40,167,69,0.10);
         }
         .info span {
             display: block;
-            margin-bottom: 7px;
+            margin-bottom: 9px;
         }
         .btn-historico {
-            background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+            background: linear-gradient(90deg, #d90429 60%, #232526 100%);
             color: #fff;
-            padding: 12px 32px;
+            padding: 14px 0;
             border: none;
-            border-radius: 7px;
+            border-radius: 10px;
             text-decoration: none;
-            font-size: 1.08rem;
+            font-size: 1.15rem;
             font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 10px rgba(220,4,41,0.10);
             transition: background 0.2s, box-shadow 0.2s;
             cursor: pointer;
             display: inline-block;
+            width: 100%;
         }
         .btn-historico:hover {
-            background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            background: linear-gradient(90deg, #232526 60%, #d90429 100%);
+            box-shadow: 0 4px 18px rgba(220,4,41,0.16);
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="branding">Dunnas - Pedido Realizado</div>
         <div class="icon-success">&#10004;</div>
         <h2>Pedido realizado com sucesso!</h2>
         <div class="info">
@@ -70,7 +85,7 @@
                 <span style="color:#28a745;"><strong>Cupom aplicado:</strong> ${pedido.cupom}</span>
             </c:if>
         </div>
-    <a href="/pedidos/historico" class="btn-historico">Ver histórico de pedidos</a>
+        <a href="/pedidos/historico" class="btn-historico">Ver histórico de pedidos</a>
     </div>
 </body>
 </html>

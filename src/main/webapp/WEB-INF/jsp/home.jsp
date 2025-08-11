@@ -7,43 +7,55 @@
         <style>
             body {
                 font-family: 'Segoe UI', Arial, sans-serif;
-                background: linear-gradient(120deg, #e0e7ff 0%, #f5f5f5 100%);
+                background: #232323;
+                min-height: 100vh;
                 margin: 0;
-                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             .container {
-                max-width: 600px;
-                margin: 50px auto;
+                max-width: 420px;
+                margin: 48px auto;
                 background: #fff;
                 padding: 38px 32px 32px 32px;
                 border-radius: 18px;
-                box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+                box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            }
+            .branding {
+                text-align:center;
+                margin-bottom:18px;
+            }
+            .branding span {
+                font-size:2rem;
+                font-weight:700;
+                color:#d32f2f;
+                letter-spacing:2px;
             }
             .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
+                margin-bottom: 10px;
+                text-align:center;
             }
             .logout-btn {
-                background: linear-gradient(90deg, #dc3545 60%, #c82333 100%);
+                background: #d32f2f;
                 color: white;
-                padding: 10px 28px;
+                padding: 14px 0;
                 border: none;
                 border-radius: 7px;
                 text-decoration: none;
-                font-size: 1.08rem;
-                font-weight: bold;
-                box-shadow: 0 2px 8px rgba(220,53,69,0.08);
+                font-size: 18px;
+                font-weight: 600;
+                box-shadow: 0 2px 8px rgba(211,47,47,0.10);
                 transition: background 0.2s, box-shadow 0.2s;
                 cursor: pointer;
+                width:100%;
             }
             .logout-btn:hover {
-                background: linear-gradient(90deg, #c82333 60%, #dc3545 100%);
-                box-shadow: 0 4px 16px rgba(220,53,69,0.12);
+                background: #c62828;
+                box-shadow: 0 4px 16px rgba(211,47,47,0.18);
             }
             .profile {
-                background: #f8f9fa;
+                background: #f8fafc;
                 border-radius: 12px;
                 padding: 28px 24px;
                 margin-bottom: 28px;
@@ -51,19 +63,19 @@
                 text-align: center;
             }
             .profile h2 {
-                color: #007bff;
+                color: #d32f2f;
                 margin-bottom: 18px;
                 font-size: 2rem;
                 font-weight: 700;
             }
             .profile-info {
                 font-size: 1.08rem;
-                color: #333;
+                color: #232323;
                 margin-bottom: 10px;
             }
             .profile-label {
                 font-weight: bold;
-                color: #007bff;
+                color: #d32f2f;
             }
             .menu {
                 display: flex;
@@ -72,28 +84,32 @@
                 margin-top: 18px;
             }
             .menu-btn {
-                background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+                background: #d32f2f;
                 color: #fff;
                 padding: 14px 0;
                 border: none;
                 border-radius: 7px;
-                font-size: 1.08rem;
-                font-weight: bold;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                font-size: 18px;
+                font-weight: 600;
+                box-shadow: 0 2px 8px rgba(211,47,47,0.10);
                 transition: background 0.2s, box-shadow 0.2s;
                 cursor: pointer;
                 text-decoration: none;
+                width:100%;
             }
             .menu-btn:hover {
-                background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
-                box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+                background: #c62828;
+                box-shadow: 0 4px 16px rgba(211,47,47,0.18);
             }
         </style>
     </head>
 <body>
     <div class="container">
+        <div class="branding">
+            <span>Projeto Dunnas</span>
+        </div>
         <div class="header">
-            <h1 style="color:#007bff;margin:0 auto;font-size:2.2rem;font-weight:800;text-align:center;width:100%;">Meu Perfil</h1>
+            <h1 style="color:#d32f2f;margin:0 auto;font-size:2.2rem;font-weight:800;text-align:center;width:100%;">Meu Perfil</h1>
         </div>
         <div class="profile">
             <h2>Bem-vindo!</h2>

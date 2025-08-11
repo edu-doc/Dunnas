@@ -3,16 +3,19 @@ package com.example.dunnas.controller;
 import com.example.dunnas.dto.ClienteRequestDTO;
 import com.example.dunnas.dto.ClienteResponseDTO;
 import com.example.dunnas.model.entity.Cliente;
-import com.example.dunnas.security.JwtUtil;
 import com.example.dunnas.service.ClienteService;
 
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
@@ -22,21 +25,22 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     @GetMapping("/pix")
-    public String mostrarFormularioPix(Model model, @CookieValue("jwt_token") String jwtToken) {
-        Long clienteId = jwtUtil.extractUserId(jwtToken);
+    public String mostrarFormularioPix(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        Long clienteId = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")).getId();
         model.addAttribute("clienteId", clienteId);
         return "clientes/pix";
     }
 
     @PostMapping("/pix")
-    public String processarPix(@RequestParam("valor") java.math.BigDecimal valor,
-                              @CookieValue("jwt_token") String jwtToken,
-                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Long clienteId = jwtUtil.extractUserId(jwtToken);
+    public String processarPix(@RequestParam("valor") BigDecimal valor,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+        String username = authentication.getName();
+        Long clienteId = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")).getId();
         boolean sucesso = clienteService.adicionarSaldo(clienteId, valor);
         if (sucesso) {
             redirectAttributes.addFlashAttribute("success", "Saldo adicionado com sucesso!");
@@ -89,10 +93,10 @@ public class ClienteController {
     }
 
     @GetMapping("/perfil")
-    public String perfilCliente(Model model, @CookieValue("jwt_token") String jwtToken) {
-        Long clienteId = jwtUtil.extractUserId(jwtToken);
-        Cliente clienteEntity = clienteService.buscarPorId(clienteId);
-
+    public String perfilCliente(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        Cliente clienteEntity = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         model.addAttribute("usuario", clienteEntity);
         return "home";
     }

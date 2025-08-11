@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface CupomRepository extends JpaRepository<Cupom, Long> {
 
-    Optional<Cupom> findByCodigoAndAtivoTrue(String codigo);
+    Optional<Cupom> findByCodigo(String codigo);
     
 }

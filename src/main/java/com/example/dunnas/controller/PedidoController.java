@@ -3,23 +3,28 @@ package com.example.dunnas.controller;
 
 import com.example.dunnas.dto.PedidoRequestDTO;
 import com.example.dunnas.dto.PedidoResponseDTO;
+import com.example.dunnas.dto.QuantidadeProdutoDTO;
 import com.example.dunnas.model.entity.Cupom;
 import com.example.dunnas.model.entity.Pedido;
 import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.model.entity.Produto;
-import com.example.dunnas.security.JwtUtil;
 import com.example.dunnas.service.PedidoService;
 import com.example.dunnas.service.FornecedorService;
 import com.example.dunnas.service.ProdutoService;
 import com.example.dunnas.service.PagamentoService;
 import com.example.dunnas.service.CupomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/pedidos")
@@ -31,8 +36,6 @@ public class PedidoController {
     @Autowired
     private CupomService cupomService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @Autowired
     private PedidoService pedidoService;
@@ -77,23 +80,24 @@ public class PedidoController {
     }
 
     @PostMapping("/criar")
-    public String criarPedido(@ModelAttribute PedidoRequestDTO dto, Model model, @CookieValue("jwt_token") String jwtToken) {
-        Long clienteId = jwtUtil.extractUserId(jwtToken);
+    public String criarPedido(@ModelAttribute PedidoRequestDTO dto, Model model, Authentication authentication) {
+        String username = authentication.getName();
+        Long clienteId = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")).getId();
         dto.setClienteId(clienteId);
         if (dto.getCupom() != null && dto.getCupom().trim().isEmpty()) {
             dto.setCupom(null);
         }
-            // Validação: pedido deve ter ao menos um produto
-            if (dto.getProdutoIds() == null || dto.getProdutoIds().isEmpty()) {
-                model.addAttribute("error", "Selecione ao menos um produto para finalizar o pedido.");
-                Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
-                List<Produto> produtos = produtoService.listarProdutosPorFornecedor(dto.getFornecedorId());
-                model.addAttribute("fornecedor", fornecedor);
-                model.addAttribute("produtos", produtos);
-                return "pedidos/novo-pedido";
-            }
+        if (dto.getProdutoIds() == null || dto.getProdutoIds().isEmpty()) {
+            model.addAttribute("error", "Selecione ao menos um produto para finalizar o pedido.");
+            Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
+            List<Produto> produtos = produtoService.listarProdutosPorFornecedor(dto.getFornecedorId());
+            model.addAttribute("fornecedor", fornecedor);
+            model.addAttribute("produtos", produtos);
+            return "pedidos/novo-pedido";
+        }
         if (dto.getCupom() != null) {
-            java.util.Optional<Cupom> cupomOpt = cupomService.validarCupom(dto.getCupom());
+            Optional<Cupom> cupomOpt = cupomService.validarCupom(dto.getCupom());
             if (cupomOpt.isEmpty()) {
                 model.addAttribute("error", "Cupom informado é inválido ou expirado.");
                 Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
@@ -103,18 +107,27 @@ public class PedidoController {
                 return "pedidos/novo-pedido";
             }
         }
-        PedidoResponseDTO pedido = pedidoService.criarPedido(dto);
+        Map<Long, Integer> quantidades = new HashMap<>();
+        if (dto.getQuantidades() != null) {
+            for (QuantidadeProdutoDTO q : dto.getQuantidades()) {
+                if (q.getProdutoId() != null && q.getQuantidade() != null) {
+                    quantidades.put(q.getProdutoId(), q.getQuantidade());
+                }
+            }
+        }
+        PedidoResponseDTO pedido = pedidoService.criarPedido(dto, quantidades);
         model.addAttribute("pedido", pedido);
         return "pedidos/sucesso";
     }
 
     @GetMapping("/historico")
-    public String historicoPedidos(Model model, @CookieValue("jwt_token") String jwtToken) {
-        Long clienteId = jwtUtil.extractUserId(jwtToken);
+    public String historicoPedidos(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        Long clienteId = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")).getId();
         List<Pedido> pedidos = pedidoService.listarPedidosPorCliente(clienteId);
         model.addAttribute("pedidos", pedidos);
-        // Adiciona saldo do cliente
-        java.math.BigDecimal saldo = clienteService.buscarPorId(clienteId).getSaldo();
+        BigDecimal saldo = clienteService.buscarPorId(clienteId).getSaldo();
         model.addAttribute("saldo", saldo);
         return "pedidos/historico";
     }

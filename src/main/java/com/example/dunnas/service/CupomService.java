@@ -5,6 +5,8 @@ import com.example.dunnas.dto.CupomResponseDTO;
 import com.example.dunnas.model.entity.Cupom;
 import com.example.dunnas.model.repository.CupomRepository;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,15 @@ import java.util.ArrayList;
 
 @Service
 public class CupomService {
+    @PersistenceContext
+    private EntityManager entityManager;
+    public void excluirCupom(Long id) {
+        Optional<Cupom> cupomOpt = cupomRepository.findById(id);
+        if (cupomOpt.isEmpty()) {
+            throw new RuntimeException("Cupom não encontrado.");
+        }
+        cupomRepository.deleteById(id);
+    }
 
     private final CupomRepository cupomRepository;
 
@@ -35,32 +46,41 @@ public class CupomService {
     }
 
     public void criarCupom(CupomRequestDTO dto) {
-        if (cupomRepository.findByCodigoAndAtivoTrue(dto.getCodigo()).isPresent()) {
-            throw new RuntimeException("Já existe um cupom ativo com esse código.");
+        String codigo = dto.getCodigo() != null ? dto.getCodigo().trim() : "";
+        if (codigo.isEmpty()) {
+            throw new RuntimeException("O código do cupom não pode ser vazio.");
         }
-        if (dto.getDataValidade().isBefore(LocalDate.now())) {
+        if (cupomRepository.findByCodigo(codigo).isPresent()) {
+            throw new RuntimeException("Já existe um cupom com esse código.");
+        }
+        if (dto.getDesconto() == null || dto.getDesconto().doubleValue() <= 0) {
+            throw new RuntimeException("O desconto deve ser maior que zero.");
+        }
+        if (dto.getDataValidade() == null || dto.getDataValidade().isBefore(LocalDate.now().plusDays(1))) {
             throw new RuntimeException("A data de validade deve ser futura.");
         }
         Cupom cupom = new Cupom();
-        cupom.setCodigo(dto.getCodigo());
+        cupom.setCodigo(codigo);
         cupom.setDesconto(dto.getDesconto());
         cupom.setDataValidade(dto.getDataValidade());
-        boolean ativo = dto.isAtivo();
-        cupom.setAtivo(ativo);
+        cupom.setAtivo(dto.isAtivo());
         cupomRepository.save(cupom);
     }
 
 
     public Optional<Cupom> validarCupom(String codigo) {
-        Optional<Cupom> cupomOpt = cupomRepository.findByCodigoAndAtivoTrue(codigo);
-        if (cupomOpt.isPresent()) {
-            Cupom cupom = cupomOpt.get();
-            if (cupom.getDataValidade().isBefore(LocalDate.now())) {
-                return Optional.empty();
-            }
-            return Optional.of(cupom);
+        Optional<Cupom> cupomOpt = cupomRepository.findByCodigo(codigo);
+        if (cupomOpt.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        Cupom cupom = cupomOpt.get();
+        if (!cupom.isAtivo()) {
+            return Optional.empty();
+        }
+        if (cupom.getDataValidade() != null && cupom.getDataValidade().isBefore(java.time.LocalDate.now())) {
+            return Optional.empty();
+        }
+        return Optional.of(cupom);
     }
 
     public void atualizarCupom(Long id, String codigo, double desconto, String dataValidade, boolean ativo) {

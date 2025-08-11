@@ -1,13 +1,15 @@
 package com.example.dunnas.model.entity;
 
 import jakarta.persistence.*;
-
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "fornecedores")
 @PrimaryKeyJoinColumn(name = "id")
 public class Fornecedor extends Usuario{
+    @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List <Produto> produtos;
 
     @Column(name = "nome", nullable = false,  length = 50)
     private String nome;

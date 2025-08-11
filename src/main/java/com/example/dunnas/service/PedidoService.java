@@ -37,17 +37,18 @@ public class PedidoService {
         this.cupomService = cupomService;
     }
 
-    public PedidoResponseDTO criarPedido(PedidoRequestDTO dto) {
-
+    public PedidoResponseDTO criarPedido(PedidoRequestDTO dto, java.util.Map<Long, Integer> quantidades) {
         Cliente cliente = clienteService.buscarPorId(dto.getClienteId());
         Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
         List<Produto> produtos = produtoRepository.findAllById(dto.getProdutoIds());
 
-        BigDecimal valorTotal = produtos.stream()
-                .map(Produto::getPreco)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        java.math.BigDecimal valorTotal = java.math.BigDecimal.ZERO;
+        for (Produto produto : produtos) {
+            int qtd = quantidades.getOrDefault(produto.getId(), 1);
+            valorTotal = valorTotal.add(produto.getPreco().multiply(java.math.BigDecimal.valueOf(qtd)));
+        }
 
-        BigDecimal desconto = BigDecimal.ZERO;
+        java.math.BigDecimal desconto = java.math.BigDecimal.ZERO;
         if (dto.getCupom() != null && !dto.getCupom().isEmpty()) {
             var cupomOpt = cupomService.validarCupom(dto.getCupom());
             if (cupomOpt.isPresent()) {
@@ -59,14 +60,14 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setFornecedor(fornecedor);
         pedido.setProdutos(produtos);
-        BigDecimal valorFinal = valorTotal.subtract(desconto);
-        if (valorFinal.compareTo(BigDecimal.ZERO) < 0) {
-            valorFinal = BigDecimal.ZERO;
+        java.math.BigDecimal valorFinal = valorTotal.subtract(desconto);
+        if (valorFinal.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            valorFinal = java.math.BigDecimal.ZERO;
         }
         pedido.setValorTotal(valorFinal);
         pedido.setDesconto(desconto);
         pedido.setCupom(dto.getCupom());
-        pedido.setDataPedido(LocalDateTime.now());
+        pedido.setDataPedido(java.time.LocalDateTime.now());
         pedido.setStatus(com.example.dunnas.enuns.PedidoEnum.PENDENTE);
 
         pedido = pedidoRepository.save(pedido);

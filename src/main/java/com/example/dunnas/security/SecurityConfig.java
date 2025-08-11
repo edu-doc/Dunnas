@@ -7,29 +7,61 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
-                )
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.maximumSessions(1))
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .logout(logout -> logout.disable())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+        http.userDetailsService(customUserDetailsService);
+    return http
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers(
+                "/",
+                "/login",
+                "/clientes/novo",
+                "/clientes/salvar",
+                "/fornecedores/novo",
+                "/fornecedores/salvar",
+                "/clientes/verificar/**",
+                "/fornecedores/verificar/**",
+                "/css/**",
+                "/js/**",
+                "/images/**",
+                "/static/**",
+                "/webjars/**",
+                "/WEB-INF/jsp/**"
+            ).permitAll()
+                .requestMatchers("/produtos-cliente").hasRole("CLIENTE")
+                .requestMatchers("/produtos-fornecedor").hasRole("FORNECEDOR")
+                .requestMatchers("/produtos/cadastro","/produtos/salvar","/produtos/produtos-fornecedor").hasRole("FORNECEDOR")
+                .requestMatchers("/pedidos/**").hasRole("CLIENTE")
+                .requestMatchers("/clientes/pix").hasRole("CLIENTE")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+                .loginPage("/login")
+                .successHandler(customAuthenticationSuccessHandler)
+                .permitAll()
+        )
+        .logout(logout -> logout
+            .logoutUrl("/auth/logout")
+            .logoutSuccessUrl("/login?logout=true")
+            .permitAll()
+        )
+        .csrf(csrf -> csrf.disable())
+        .build();
     }
 
     @Bean

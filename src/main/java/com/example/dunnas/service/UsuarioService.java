@@ -5,10 +5,18 @@ import com.example.dunnas.model.repository.UsuarioRepository;
 import com.example.dunnas.model.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UsuarioService {
+    public void excluirUsuario(Long id) {
+        Optional<Usuario> userOpt = usuarioRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        usuarioRepository.deleteById(id);
+    }
 
     private UsuarioRepository usuarioRepository;
 
@@ -27,7 +35,7 @@ public class UsuarioService {
         return clienteRepository.findByUsuario(usuario).map(c -> (Usuario) c);
     }
 
-    public java.util.List<Usuario> listarUsuarios() {
+    public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
