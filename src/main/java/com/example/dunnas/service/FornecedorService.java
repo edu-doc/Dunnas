@@ -6,6 +6,8 @@ import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.FornecedorException;
 import com.example.dunnas.model.entity.Fornecedor;
 import br.com.caelum.stella.validation.CNPJValidator;
+import br.com.caelum.stella.validation.InvalidStateException;
+
 import org.apache.commons.validator.routines.EmailValidator;
 import com.example.dunnas.model.repository.FornecedorRepository;
 
@@ -42,18 +44,17 @@ public class FornecedorService {
             throw new RuntimeException("CNPJ já cadastrado. Use outro CNPJ.");
         }
 
-        // Validação de CNPJ
-            if (dto.getCnpj() != null) {
-                try {
-                    new CNPJValidator().assertValid(dto.getCnpj());
-                } catch (br.com.caelum.stella.validation.InvalidStateException e) {
-                    throw new RuntimeException("CNPJ inválido! Por favor, insira um CNPJ correto.");
-                }
+        if (dto.getCnpj() != null) {
+            try {
+                new CNPJValidator().assertValid(dto.getCnpj());
+            } catch (InvalidStateException e) {
+                throw new RuntimeException("CNPJ inválido! Por favor, insira um CNPJ correto.");
             }
-            // Validação de e-mail
-            if (dto.getEmail() != null && !EmailValidator.getInstance().isValid(dto.getEmail())) {
-                throw new RuntimeException("E-mail inválido");
-            }
+        }
+        
+        if (dto.getEmail() != null && !EmailValidator.getInstance().isValid(dto.getEmail())) {
+            throw new RuntimeException("E-mail inválido");
+        }
 
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setNome(dto.getNome());

@@ -7,6 +7,8 @@ import com.example.dunnas.model.repository.CupomRepository;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,13 @@ import java.util.ArrayList;
 
 @Service
 public class CupomService {
+
+    private final CupomRepository cupomRepository;
+
+    public CupomService(CupomRepository cupomRepository) {
+        this.cupomRepository = cupomRepository;
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
     public void excluirCupom(Long id) {
@@ -22,12 +31,6 @@ public class CupomService {
             throw new RuntimeException("Cupom não encontrado.");
         }
         cupomRepository.deleteById(id);
-    }
-
-    private final CupomRepository cupomRepository;
-
-    public CupomService(CupomRepository cupomRepository) {
-        this.cupomRepository = cupomRepository;
     }
 
     public List<CupomResponseDTO> listarCupons() {
@@ -77,7 +80,7 @@ public class CupomService {
         if (!cupom.isAtivo()) {
             return Optional.empty();
         }
-        if (cupom.getDataValidade() != null && cupom.getDataValidade().isBefore(java.time.LocalDate.now())) {
+        if (cupom.getDataValidade() != null && cupom.getDataValidade().isBefore(LocalDate.now())) {
             return Optional.empty();
         }
         return Optional.of(cupom);
@@ -90,7 +93,7 @@ public class CupomService {
         }
         Cupom cupom = cupomOpt.get();
         cupom.setCodigo(codigo);
-        cupom.setDesconto(java.math.BigDecimal.valueOf(desconto));
+        cupom.setDesconto(BigDecimal.valueOf(desconto));
         cupom.setDataValidade(LocalDate.parse(dataValidade));
         cupom.setAtivo(ativo);
         cupomRepository.save(cupom);

@@ -1,5 +1,6 @@
 package com.example.dunnas.service;
 
+import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.model.entity.Usuario;
 import com.example.dunnas.model.repository.UsuarioRepository;
 import com.example.dunnas.model.repository.ClienteRepository;
@@ -10,13 +11,6 @@ import java.util.Optional;
 
 @Service
 public class UsuarioService {
-    public void excluirUsuario(Long id) {
-        Optional<Usuario> userOpt = usuarioRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        usuarioRepository.deleteById(id);
-    }
 
     private UsuarioRepository usuarioRepository;
 
@@ -47,8 +41,7 @@ public class UsuarioService {
         Usuario user = userOpt.get();
         user.setUsuario(usuario);
         user.setEmail(email);
-        // converte String para UsuarioRole
-        user.setRole(com.example.dunnas.enuns.UsuarioRole.valueOf(role.toUpperCase()));
+        user.setRole(UsuarioRole.valueOf(role.toUpperCase()));
         user.setVerificado(verificado);
         usuarioRepository.save(user);
     }
@@ -77,6 +70,14 @@ public class UsuarioService {
             return user;
         }
         return clienteRepository.findByEmail(email).map(c -> (Usuario) c);
+    }
+
+    public void excluirUsuario(Long id) {
+        Optional<Usuario> userOpt = usuarioRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        usuarioRepository.deleteById(id);
     }
 
 }

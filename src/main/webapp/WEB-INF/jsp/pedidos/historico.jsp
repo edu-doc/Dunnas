@@ -11,12 +11,14 @@
             min-height: 100vh;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
+            width: 95vw;
             margin: 48px auto;
             background: #fff;
             padding: 42px 36px 36px 36px;
             border-radius: 20px;
             box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+            overflow-x: auto;
         }
         .branding {
             font-size: 1.25rem;
@@ -113,6 +115,22 @@
             border-bottom: 1px solid #e0e0e0;
             text-align: left;
         }
+        td.acao {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .acoes-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-pagar, .btn-cancelar {
+            min-width: 110px;
+            max-width: 140px;
+            width: 120px;
+            text-align: center;
+            margin: 0 !important;
+        }
         th {
             background: #d90429;
             color: #fff;
@@ -156,7 +174,7 @@
                 <th>Desconto</th>
                 <th>Status</th>
                 <th>Data</th>
-                <th>Ações</th>
+                <th style="text-align:center;">Ações</th>
             </tr>
             <c:forEach var="pedido" items="${pedidos}">
                 <tr>
@@ -181,21 +199,23 @@
                         </c:if>
                     </td>
                     <td>${pedido.dataPedido}</td>
-                    <td>
-                        <c:if test="${pedido.status == 'PENDENTE'}">
-                            <form action="/pedidos/pagar/${pedido.id}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-pagar">Pagar</button>
-                            </form>
-                            <form action="/pedidos/cancelar/${pedido.id}" method="post" style="display:inline; margin-left:8px;">
-                                <button type="submit" class="btn-cancelar">Cancelar</button>
-                            </form>
-                        </c:if>
-                        <c:if test="${pedido.status == 'PAGO'}">
-                            <span class="status-pago">✔</span>
-                        </c:if>
-                        <c:if test="${pedido.status == 'CANCELADO'}">
-                            <span class="status-cancelado">✖</span>
-                        </c:if>
+                    <td class="acao">
+                        <div class="acoes-btns">
+                            <c:if test="${pedido.status == 'PENDENTE'}">
+                                <form action="/pedidos/pagar/${pedido.id}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn-pagar">Pagar</button>
+                                </form>
+                                <form action="/pedidos/cancelar/${pedido.id}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn-cancelar">Cancelar</button>
+                                </form>
+                            </c:if>
+                            <c:if test="${pedido.status == 'PAGO'}">
+                                <span class="status-pago">✔</span>
+                            </c:if>
+                            <c:if test="${pedido.status == 'CANCELADO'}">
+                                <span class="status-cancelado">✖</span>
+                            </c:if>
+                        </div>
                     </td>
                 </tr>
             </c:forEach>

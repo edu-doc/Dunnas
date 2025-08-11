@@ -2,6 +2,7 @@ package com.example.dunnas.service;
 
 import com.example.dunnas.dto.PedidoRequestDTO;
 import com.example.dunnas.dto.PedidoResponseDTO;
+import com.example.dunnas.enuns.PedidoEnum;
 import com.example.dunnas.model.entity.Pedido;
 import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.entity.Fornecedor;
@@ -10,9 +11,11 @@ import com.example.dunnas.model.repository.PedidoRepository;
 import com.example.dunnas.model.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,18 +40,18 @@ public class PedidoService {
         this.cupomService = cupomService;
     }
 
-    public PedidoResponseDTO criarPedido(PedidoRequestDTO dto, java.util.Map<Long, Integer> quantidades) {
+    public PedidoResponseDTO criarPedido(PedidoRequestDTO dto, Map<Long, Integer> quantidades) {
         Cliente cliente = clienteService.buscarPorId(dto.getClienteId());
         Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
         List<Produto> produtos = produtoRepository.findAllById(dto.getProdutoIds());
 
-        java.math.BigDecimal valorTotal = java.math.BigDecimal.ZERO;
+        BigDecimal valorTotal = BigDecimal.ZERO;
         for (Produto produto : produtos) {
             int qtd = quantidades.getOrDefault(produto.getId(), 1);
-            valorTotal = valorTotal.add(produto.getPreco().multiply(java.math.BigDecimal.valueOf(qtd)));
+            valorTotal = valorTotal.add(produto.getPreco().multiply(BigDecimal.valueOf(qtd)));
         }
 
-        java.math.BigDecimal desconto = java.math.BigDecimal.ZERO;
+        BigDecimal desconto = BigDecimal.ZERO;
         if (dto.getCupom() != null && !dto.getCupom().isEmpty()) {
             var cupomOpt = cupomService.validarCupom(dto.getCupom());
             if (cupomOpt.isPresent()) {
@@ -60,15 +63,17 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setFornecedor(fornecedor);
         pedido.setProdutos(produtos);
-        java.math.BigDecimal valorFinal = valorTotal.subtract(desconto);
-        if (valorFinal.compareTo(java.math.BigDecimal.ZERO) < 0) {
-            valorFinal = java.math.BigDecimal.ZERO;
+        BigDecimal valorFinal = valorTotal.subtract(desconto);
+
+        if (valorFinal.compareTo(BigDecimal.ZERO) < 0) {
+            valorFinal = BigDecimal.ZERO;
         }
+
         pedido.setValorTotal(valorFinal);
         pedido.setDesconto(desconto);
         pedido.setCupom(dto.getCupom());
-        pedido.setDataPedido(java.time.LocalDateTime.now());
-        pedido.setStatus(com.example.dunnas.enuns.PedidoEnum.PENDENTE);
+        pedido.setDataPedido(LocalDateTime.now());
+        pedido.setStatus(PedidoEnum.PENDENTE);
 
         pedido = pedidoRepository.save(pedido);
 

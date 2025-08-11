@@ -1,6 +1,8 @@
 package com.example.dunnas.model.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,15 +20,15 @@ public class Fornecedor extends Usuario{
     private String cnpj;
 
     @Column(name = "saldo", nullable = false)
-    private java.math.BigDecimal saldo = java.math.BigDecimal.ZERO;
+    private BigDecimal saldo = BigDecimal.ZERO;
 
     public Fornecedor() {}
 
-    public java.math.BigDecimal getSaldo() {
+    public BigDecimal getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(java.math.BigDecimal saldo) {
+    public void setSaldo(BigDecimal saldo) {
         this.saldo = saldo;
     }
 

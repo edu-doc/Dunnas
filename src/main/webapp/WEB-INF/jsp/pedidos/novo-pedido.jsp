@@ -163,7 +163,6 @@
                 quantidadeInput.disabled = true;
             }
         }
-        // Garante que só envia quantidade dos produtos selecionados
         document.querySelector('form[action="/pedidos/criar"]').addEventListener('submit', function(e) {
             document.querySelectorAll('.prod-item').forEach(function(item) {
                 var checkbox = item.querySelector('input[type="checkbox"]');
@@ -171,10 +170,7 @@
                 var hiddenProdutoId = item.querySelector('input[type="hidden"]');
                 if (!checkbox.checked) {
                     quantidadeInput.disabled = true;
-                    // Zera a quantidade para não enviar
                     quantidadeInput.value = '';
-                    // Opcional: zera o produtoId se quiser garantir
-                    // hiddenProdutoId.value = '';
                 }
             });
         });

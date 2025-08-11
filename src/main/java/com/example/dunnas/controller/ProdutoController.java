@@ -11,6 +11,7 @@ import com.example.dunnas.service.ClienteService;
 import com.example.dunnas.service.FornecedorService;
 import com.example.dunnas.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class ProdutoController {
     private FornecedorService fornecedorService;
 
     @GetMapping("/editar/{id}")
-        public String editarProduto(@PathVariable Long id, Model model, org.springframework.security.core.Authentication authentication) {
+        public String editarProduto(@PathVariable Long id, Model model, Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
@@ -46,7 +47,7 @@ public class ProdutoController {
                                    @RequestParam String descricao,
                                    @RequestParam BigDecimal preco,
                                    @RequestParam(required = false) BigDecimal precoComDesconto,
-                                   org.springframework.security.core.Authentication authentication) {
+                                   Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
@@ -63,7 +64,7 @@ public class ProdutoController {
     }
 
     @PostMapping("/excluir")
-    public String excluirProduto(@RequestParam Long id, org.springframework.security.core.Authentication authentication) {
+    public String excluirProduto(@RequestParam Long id, Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
@@ -83,8 +84,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/produtos-fornecedor")
-    public String produtosFornecedor(Model model, org.springframework.security.core.Authentication authentication) {
-    // Removido uso de jwtUtil. Se necessário, ajuste para usar Authentication.
+    public String produtosFornecedor(Model model, Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
@@ -97,7 +97,7 @@ public class ProdutoController {
 
 
     @GetMapping("/produto-cliente")
-    public String produtosCliente(Model model, org.springframework.security.core.Authentication authentication) {
+    public String produtosCliente(Model model, Authentication authentication) {
         List<ProdutoResponseDTO> produtos = produtoService.listarProdutos();
         model.addAttribute("produtos", produtos);
         String username = authentication.getName();
@@ -108,7 +108,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/cadastro")
-    public String cadastroProduto(Model model, org.springframework.security.core.Authentication authentication) {
+    public String cadastroProduto(Model model, Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
@@ -120,7 +120,7 @@ public class ProdutoController {
     }
 
     @PostMapping("/salvar")
-    public String salvarProduto(@ModelAttribute ProdutoRequestDTO produtoDTO, org.springframework.security.core.Authentication authentication) {
+    public String salvarProduto(@ModelAttribute ProdutoRequestDTO produtoDTO, Authentication authentication) {
         String username = authentication.getName();
         Long fornecedorId = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();

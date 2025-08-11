@@ -8,6 +8,7 @@ import com.example.dunnas.service.FornecedorService;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -92,7 +93,7 @@ public class FornecedorController {
     }
 
     @GetMapping("/perfil")
-    public String perfilFornecedor(Model model, org.springframework.security.core.Authentication authentication) {
+    public String perfilFornecedor(Model model, Authentication authentication) {
         String username = authentication.getName();
         Fornecedor fornecedorEntity = fornecedorService.buscarPorUsuario(username)
             .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));

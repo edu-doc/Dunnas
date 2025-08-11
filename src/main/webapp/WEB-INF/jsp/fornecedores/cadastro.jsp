@@ -158,7 +158,5 @@
             <a href="/login">← Voltar para o Login</a>
         </div>
     </div>
-
-    <!-- Script removido: máscara já faz a formatação -->
 </body>
 </html>

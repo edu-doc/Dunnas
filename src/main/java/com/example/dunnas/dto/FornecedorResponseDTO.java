@@ -18,7 +18,7 @@ public class FornecedorResponseDTO {
         this.email = email;
         this.usuario = usuario;
         this.verificado = verificado;
-        this.saldo = java.math.BigDecimal.ZERO; // Initialize saldo to zero
+        this.saldo = java.math.BigDecimal.ZERO;
     }
 
     public Long getId() { return id; }

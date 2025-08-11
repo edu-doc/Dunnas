@@ -169,12 +169,10 @@
     </div>
 
     <script>
-        // Formatação do código - apenas números
         document.getElementById('codigo').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '');
         });
         
-        // Auto-focus no campo do código
         window.onload = function() {
             document.getElementById('codigo').focus();
         };

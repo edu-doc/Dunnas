@@ -4,6 +4,8 @@ import com.example.dunnas.service.CupomService;
 import com.example.dunnas.service.UsuarioService;
 import com.example.dunnas.dto.CupomRequestDTO;
 import com.example.dunnas.dto.CupomResponseDTO;
+import com.example.dunnas.model.entity.Usuario;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,45 +21,12 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    @PostMapping("/usuario/excluir")
-    public String excluirUsuario(@RequestParam("id") Long id, Model model, Authentication authentication) {
-        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return "redirect:/login";
-        }
-        try {
-            usuarioService.excluirUsuario(id);
-            model.addAttribute("success", "Usuário excluído com sucesso!");
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("usuarios", usuarioService.listarUsuarios());
-        List<CupomResponseDTO> cupons = cupomService.listarCupons();
-        model.addAttribute("cupons", cupons);
-        return "admin/painel";
-    }
-    @PostMapping("/cupom/excluir")
-    public String excluirCupom(@RequestParam("id") Long id, Model model, Authentication authentication) {
-        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return "redirect:/login";
-        }
-        try {
-            cupomService.excluirCupom(id);
-            model.addAttribute("success", "Cupom excluído com sucesso!");
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("usuarios", usuarioService.listarUsuarios());
-        List<CupomResponseDTO> cupons = cupomService.listarCupons();
-        model.addAttribute("cupons", cupons);
-        return "admin/painel";
-    }
 
     @Autowired
     private CupomService cupomService;
 
     @Autowired
     private UsuarioService usuarioService;
-
 
     @GetMapping
     public String painelAdmin(Model model, Authentication authentication) {
@@ -148,12 +117,45 @@ public class AdminController {
         if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/login";
         }
-    com.example.dunnas.model.entity.Usuario usuario = usuarioService.buscarPorId(id);
+    Usuario usuario = usuarioService.buscarPorId(id);
     model.addAttribute("usuario", usuario);
     model.addAttribute("usuarios", usuarioService.listarUsuarios());
     List<CupomResponseDTO> cupons = cupomService.listarCupons();
     model.addAttribute("cupons", cupons);
     return "admin/editar-usuario";
+    }
+
+    @PostMapping("/usuario/excluir")
+    public String excluirUsuario(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/login";
+        }
+        try {
+            usuarioService.excluirUsuario(id);
+            model.addAttribute("success", "Usuário excluído com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("usuarios", usuarioService.listarUsuarios());
+        List<CupomResponseDTO> cupons = cupomService.listarCupons();
+        model.addAttribute("cupons", cupons);
+        return "admin/painel";
+    }
+    @PostMapping("/cupom/excluir")
+    public String excluirCupom(@RequestParam("id") Long id, Model model, Authentication authentication) {
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/login";
+        }
+        try {
+            cupomService.excluirCupom(id);
+            model.addAttribute("success", "Cupom excluído com sucesso!");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("usuarios", usuarioService.listarUsuarios());
+        List<CupomResponseDTO> cupons = cupomService.listarCupons();
+        model.addAttribute("cupons", cupons);
+        return "admin/painel";
     }
 
 }

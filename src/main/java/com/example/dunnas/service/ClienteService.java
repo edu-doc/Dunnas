@@ -6,8 +6,8 @@ import com.example.dunnas.enuns.UsuarioRole;
 import com.example.dunnas.exception.ClienteException;
 import com.example.dunnas.model.entity.Cliente;
 import br.com.caelum.stella.validation.CPFValidator;
-import org.apache.commons.validator.routines.EmailValidator;
-import br.com.caelum.stella.validation.CPFValidator;
+import br.com.caelum.stella.validation.InvalidStateException;
+
 import org.apache.commons.validator.routines.EmailValidator;
 import com.example.dunnas.model.repository.ClienteRepository;
 import jakarta.persistence.EntityManager;
@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -29,7 +31,7 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public  ClienteService(ClienteRepository clienteRepository, EmailService emailService, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+    public  ClienteService(ClienteRepository clienteRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
@@ -47,17 +49,15 @@ public class ClienteService {
             throw new RuntimeException("CPF já cadastrado. Use outro CPF.");
         }
 
-        // Validação de CPF
         try {
             new CPFValidator().assertValid(dto.getCpf());
-        } catch (br.com.caelum.stella.validation.InvalidStateException e) {
+        } catch (InvalidStateException e) {
             throw new RuntimeException("CPF inválido! Por favor, insira um CPF válido.");
         }
         
-            // Validação de e-mail
-            if (dto.getEmail() != null && !EmailValidator.getInstance().isValid(dto.getEmail())) {
-                throw new RuntimeException("E-mail inválido");
-            }
+        if (dto.getEmail() != null && !EmailValidator.getInstance().isValid(dto.getEmail())) {
+            throw new RuntimeException("E-mail inválido");
+        }
 
         Cliente cliente = new Cliente();
         cliente.setNome(dto.getNome());
@@ -76,7 +76,7 @@ public class ClienteService {
         Cliente clienteSalvo = clienteRepository.save(cliente);
         emailService.enviarEmailVerificacao(clienteSalvo.getEmail(), codigo);
 
-        return new com.example.dunnas.dto.ClienteResponseDTO(
+        return new ClienteResponseDTO(
             clienteSalvo.getId(),
             clienteSalvo.getNome(),
             clienteSalvo.getCpf(),
@@ -90,7 +90,7 @@ public class ClienteService {
     }
 
     @Transactional
-    public boolean adicionarSaldo(Long clienteId, java.math.BigDecimal valor) {
+    public boolean adicionarSaldo(Long clienteId, BigDecimal valor) {
         Boolean result = (Boolean) entityManager
                 .createNativeQuery("SELECT adicionar_saldo_cliente(:clienteId, :valor)")
                 .setParameter("clienteId", clienteId)
@@ -144,27 +144,29 @@ public class ClienteService {
     }
     
     public Cliente criarClienteAdmin(String usuario, String senha, String email) {
-            // Validação de CPF
-            if (usuario != null && usuario.length() == 11) {
-                new CPFValidator().assertValid(usuario);
-            }
-            // Validação de e-mail
-            if (!EmailValidator.getInstance().isValid(email)) {
-                throw new RuntimeException("E-mail inválido");
-            }
+
+        if (usuario != null && usuario.length() == 11) {
+            new CPFValidator().assertValid(usuario);
+        }
+            
+        if (!EmailValidator.getInstance().isValid(email)) {
+            throw new RuntimeException("E-mail inválido");
+        }
+
         if (buscarPorUsuario(usuario).isPresent()) {
             throw new RuntimeException("Usuário admin já existe.");
         }
+
         Cliente cliente = new Cliente();
         cliente.setUsuario(usuario);
         cliente.setSenha(passwordEncoder.encode(senha));
         cliente.setEmail(email);
-        cliente.setRole(com.example.dunnas.enuns.UsuarioRole.ADMIN);
+        cliente.setRole(UsuarioRole.ADMIN);
         cliente.setVerificado(true);
-        cliente.setSaldo(java.math.BigDecimal.ZERO);
+        cliente.setSaldo(BigDecimal.ZERO);
         cliente.setNome("Administrador");
         cliente.setCpf("00000000000");
-        cliente.setDataNascimento(java.time.LocalDate.of(2000,1,1));
+        cliente.setDataNascimento(LocalDate.of(2000,1,1));
         cliente.setCodigoVerificacao(null);
         return clienteRepository.save(cliente);
     }
