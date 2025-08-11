@@ -132,8 +132,6 @@ src/
       db/migration/
       static/
       webapp/WEB-INF/jsp/
-  test/
-    java/com/example/dunnas/
 ```
 
 ---
@@ -157,8 +155,7 @@ src/
 - **Spring Security**
 - **JSP** para views
 - **Maven** para gerenciamento de dependências
-- **Banco de dados relacional** (scripts SQL para migração)
-- **JUnit** para testes automatizados
+- **Banco de dados relacional** (PostgreSQL)
 
 ---
 
