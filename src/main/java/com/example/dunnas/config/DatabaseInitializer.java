@@ -1,10 +1,16 @@
 package com.example.dunnas.config;
 
 import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
+
+import com.example.dunnas.service.ClienteService;
+
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 
 @Component
 public class DatabaseInitializer {
@@ -52,7 +58,20 @@ public class DatabaseInitializer {
     }
 
     /**
-     Método para auxiliar na extração do nome do banco.
+     * Método para criar o usuário admin.
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void criarAdminQuandoPronto(ApplicationReadyEvent event) {
+
+        ClienteService clienteService = event.getApplicationContext().getBean(ClienteService.class);
+        if (clienteService.buscarPorUsuario("admin").isEmpty()) {
+            clienteService.criarClienteAdmin("admin", "admin123", "admin@dunnas.com");
+        }
+
+    }
+
+    /**
+     * Método para auxiliar na extração do nome do banco.
      */
     private String extractDatabaseName(String url) {
         int lastSlash = url.lastIndexOf("/");

@@ -5,10 +5,18 @@ import com.example.dunnas.model.repository.UsuarioRepository;
 import com.example.dunnas.model.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UsuarioService {
+    public void excluirUsuario(Long id) {
+        Optional<Usuario> userOpt = usuarioRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        usuarioRepository.deleteById(id);
+    }
 
     private UsuarioRepository usuarioRepository;
 
@@ -27,6 +35,41 @@ public class UsuarioService {
         return clienteRepository.findByUsuario(usuario).map(c -> (Usuario) c);
     }
 
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public void atualizarUsuario(Long id, String usuario, String email, String role, boolean verificado) {
+        Optional<Usuario> userOpt = usuarioRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        Usuario user = userOpt.get();
+        user.setUsuario(usuario);
+        user.setEmail(email);
+        // converte String para UsuarioRole
+        user.setRole(com.example.dunnas.enuns.UsuarioRole.valueOf(role.toUpperCase()));
+        user.setVerificado(verificado);
+        usuarioRepository.save(user);
+    }
+
+    public void atualizarUsuarioAdmin(Long id, String usuario, String email, String senha) {
+        Optional<Usuario> userOpt = usuarioRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        Usuario user = userOpt.get();
+        user.setUsuario(usuario);
+        user.setEmail(email);
+        if (senha != null && !senha.isBlank()) {
+            user.setSenha(senha);
+        }
+        usuarioRepository.save(user);
+    }
+
+    public Usuario buscarPorId(Long id) {
+        return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
     
     public Optional<Usuario> buscarPorEmail(String email) {
         Optional<Usuario> user = usuarioRepository.findByEmail(email);

@@ -7,33 +7,94 @@
     <meta charset="UTF-8">
     <title>Cadastro Realizado - Sistema Dunnas</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; background-color: #f5f5f5; }
-        .success-container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-        .success-icon { font-size: 48px; color: #28a745; margin-bottom: 20px; }
-        h1 { color: #28a745; margin-bottom: 20px; }
-        .message { color: #333; font-size: 16px; line-height: 1.5; margin-bottom: 30px; }
-        .email-highlight { background-color: #e7f3ff; padding: 10px; border-radius: 4px; border-left: 4px solid #007bff; margin: 20px 0; }
-        .btn { display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 10px; }
-        .btn:hover { background-color: #0056b3; }
-        .btn-secondary { background-color: #6c757d; }
-        .btn-secondary:hover { background-color: #545b62; }
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                background: #232323;
+                min-height: 100vh;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .success-container {
+                background: #fff;
+                padding: 40px 30px 30px 30px;
+                border-radius: 14px;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                max-width: 400px;
+                width: 100%;
+            }
+            .logo {
+                display: block;
+                margin: 0 auto 18px auto;
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                background: #232323;
+                box-shadow: 0 2px 8px rgba(211,47,47,0.12);
+            }
+            h1 {
+                text-align: center;
+                color: #d32f2f;
+                margin-bottom: 28px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+            .success {
+                color: #fff;
+                background: #388e3c;
+                border: 1px solid #2e7d32;
+                border-radius: 5px;
+                margin-bottom: 18px;
+                padding: 10px;
+                text-align: center;
+                font-weight: 500;
+            }
+            .error {
+                color: #fff;
+                background: #d32f2f;
+                border: 1px solid #c62828;
+                border-radius: 5px;
+                margin-bottom: 18px;
+                padding: 10px;
+                text-align: center;
+                font-weight: 500;
+            }
+            .back-link {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .back-link a {
+                color: #d32f2f;
+                text-decoration: none;
+                font-weight: 500;
+            }
+            .back-link a:hover {
+                text-decoration: underline;
+                color: #232323;
+            }
     </style>
 </head>
 <body>
-    <div class="success-container">
-        <div class="success-icon">✓</div>
-        <h1>Cadastro Realizado com Sucesso!</h1>
-        <div class="message">
-            <p>Seu cadastro foi realizado com sucesso!</p>
-            <div class="email-highlight">
-                <strong>📧 Verificação de Email</strong><br>
-                Enviamos um código de verificação para:<br>
-                <strong>${email}</strong>
+        <div class="success-container">
+            <div style="text-align:center; margin-bottom:18px;">
+                <span style="font-size:2rem; font-weight:700; color:#d32f2f; letter-spacing:2px;">Projeto Dunnas</span>
             </div>
-            <p>Para ativar sua conta e fazer login, você precisa verificar seu email com o código que enviamos.</p>
-        </div>
-        <a href="/fornecedores/verificar?email=${email}" class="btn">Verificar Conta Agora</a>
-        <a href="/login" class="btn btn-secondary">Voltar ao Login</a>
+            <div style="text-align:center; margin-bottom:10px;">
+                <span style="font-size:3rem; color:#388e3c;">&#10003;</span>
+            </div>
+            <h1 style="margin-bottom:10px;">Cadastro de Fornecedor</h1>
+            <div style="text-align:center; color:#d32f2f; font-size:1.2rem; font-weight:500; margin-bottom:22px;">Cadastro realizado com sucesso!</div>
+            <div class="message" style="color:#232323; font-size:16px; line-height:1.5; margin-bottom:30px;">
+                <div class="email-highlight" style="background:#f8fafc; padding:10px; border-radius:4px; border-left:4px solid #d32f2f; margin:20px 0; color:#d32f2f;">
+                    <strong>📧 Verificação de Email</strong><br>
+                    Enviamos um código de verificação para:<br>
+                    <strong>${email}</strong>
+                </div>
+                <p>Para ativar sua conta e fazer login, você precisa verificar seu email com o código que enviamos.</p>
+            </div>
+            <a href="/fornecedores/verificar" class="btn" style="display:inline-block; background-color:#d32f2f; color:white; padding:14px 0; text-decoration:none; border-radius:6px; font-size:18px; margin:10px; font-weight:600; box-shadow:0 2px 8px rgba(211,47,47,0.10); transition:background 0.2s; width:100%;">Verificar Conta Agora</a>
+            <a href="/login" class="btn btn-secondary" style="display:inline-block; background-color:#6c757d; color:white; padding:14px 0; text-decoration:none; border-radius:6px; font-size:18px; margin:10px; font-weight:600; width:100%;">Voltar ao Login</a>
     </div>
 </body>
 </html>

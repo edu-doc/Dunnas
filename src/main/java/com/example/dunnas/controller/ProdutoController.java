@@ -1,7 +1,13 @@
 package com.example.dunnas.controller;
 
+import com.example.dunnas.dto.ProdutoRequestDTO;
+import com.example.dunnas.dto.ProdutoResponseDTO;
+import com.example.dunnas.model.entity.Cliente;
 import com.example.dunnas.model.entity.Produto;
 import java.math.BigDecimal;
+import java.util.List;
+
+import com.example.dunnas.service.ClienteService;
 import com.example.dunnas.service.FornecedorService;
 import com.example.dunnas.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
+    @Autowired
+    private ClienteService clienteService;
 
     @Autowired
     private ProdutoService produtoService;
@@ -20,10 +28,16 @@ public class ProdutoController {
     private FornecedorService fornecedorService;
 
     @GetMapping("/editar/{id}")
-    public String editarProduto(@PathVariable Long id, Model model) {
-        Produto produto = produtoService.buscarPorId(id).orElseThrow();
-        model.addAttribute("produto", produto);
-        return "produtos/editar-produto";
+        public String editarProduto(@PathVariable Long id, Model model, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
+            Produto produto = produtoService.buscarPorId(id).orElseThrow();
+            if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+                return "redirect:/produtos/produtos-fornecedor?forbidden";
+            }
+            model.addAttribute("produto", produto);
+            return "produtos/editar-produto";
     }
 
     @PostMapping("/atualizar")
@@ -32,21 +46,33 @@ public class ProdutoController {
                                    @RequestParam String descricao,
                                    @RequestParam BigDecimal preco,
                                    @RequestParam(required = false) BigDecimal precoComDesconto,
-                                   @RequestParam Long fornecedorId) {
+                                   org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
         Produto produto = produtoService.buscarPorId(id).orElseThrow();
+        if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+            return "redirect:/produtos/produtos-fornecedor?forbidden";
+        }
         produto.setNome(nome);
         produto.setDescricao(descricao);
         produto.setPreco(preco);
         produto.setPrecoComDesconto(precoComDesconto);
-        produto.setFornecedor(fornecedorService.buscarPorId(fornecedorId));
         produtoService.atualizarProduto(produto);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+        return "redirect:/produtos/produtos-fornecedor";
     }
 
     @PostMapping("/excluir")
-    public String excluirProduto(@RequestParam Long id, @RequestParam Long fornecedorId) {
+    public String excluirProduto(@RequestParam Long id, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
+        Produto produto = produtoService.buscarPorId(id).orElseThrow();
+        if (!produto.getFornecedor().getId().equals(fornecedorId)) {
+            return "redirect:/produtos/produtos-fornecedor?forbidden";
+        }
         produtoService.excluirProduto(id);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+        return "redirect:/produtos/produtos-fornecedor";
     }
 
     @GetMapping("/detalhe/{id}")
@@ -57,28 +83,49 @@ public class ProdutoController {
     }
 
     @GetMapping("/produtos-fornecedor")
-    public String produtosFornecedor(Model model, @RequestParam Long fornecedorId) {
-        model.addAttribute("produtos", produtoService.listarProdutosPorFornecedor(fornecedorId));
+    public String produtosFornecedor(Model model, org.springframework.security.core.Authentication authentication) {
+    // Removido uso de jwtUtil. Se necessário, ajuste para usar Authentication.
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
+        List<ProdutoResponseDTO> produtos = produtoService.listarProdutos().stream()
+            .filter(p -> p.getFornecedorId().equals(fornecedorId)).toList();
+        model.addAttribute("produtos", produtos);
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/produtos-fornecedor";
     }
 
+
     @GetMapping("/produto-cliente")
-    public String produtosCliente(Model model) {
-        model.addAttribute("produtos", produtoService.listarProdutos());
+    public String produtosCliente(Model model, org.springframework.security.core.Authentication authentication) {
+        List<ProdutoResponseDTO> produtos = produtoService.listarProdutos();
+        model.addAttribute("produtos", produtos);
+        String username = authentication.getName();
+        Cliente cliente = clienteService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        model.addAttribute("usuario", cliente);
         return "produtos/produto-cliente";
     }
 
     @GetMapping("/cadastro")
-    public String cadastroProduto(Model model, @RequestParam Long fornecedorId) {
-        model.addAttribute("produto", new Produto());
+    public String cadastroProduto(Model model, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
+        ProdutoRequestDTO produtoDTO = new ProdutoRequestDTO();
+        produtoDTO.setFornecedorId(fornecedorId);
+        model.addAttribute("produto", produtoDTO);
         model.addAttribute("fornecedor", fornecedorService.buscarPorId(fornecedorId));
         return "produtos/cadastro-produto";
     }
 
     @PostMapping("/salvar")
-    public String salvarProduto(@ModelAttribute Produto produto, @RequestParam Long fornecedorId) {
-        produtoService.cadastrarProduto(produto, fornecedorId);
-        return "redirect:/produtos/produtos-fornecedor?fornecedorId=" + fornecedorId;
+    public String salvarProduto(@ModelAttribute ProdutoRequestDTO produtoDTO, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Long fornecedorId = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado")).getId();
+        produtoDTO.setFornecedorId(fornecedorId);
+        produtoService.cadastrarProduto(produtoDTO);
+        return "redirect:/produtos/produtos-fornecedor";
     }
 }

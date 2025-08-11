@@ -10,6 +10,8 @@ import java.util.Objects;
 @Table(name = "clientes")
 @PrimaryKeyJoinColumn(name = "id")
 public class Cliente extends Usuario {
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private java.util.List<Pedido> pedidos;
 
     @Column(name = "nome", nullable = false, length = 50)
     private String nome;

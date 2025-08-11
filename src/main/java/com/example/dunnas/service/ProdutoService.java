@@ -1,10 +1,10 @@
 package com.example.dunnas.service;
 
+import com.example.dunnas.dto.ProdutoRequestDTO;
+import com.example.dunnas.dto.ProdutoResponseDTO;
 import com.example.dunnas.model.entity.Produto;
 import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.model.repository.ProdutoRepository;
-import com.example.dunnas.model.repository.FornecedorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,18 +22,44 @@ public class ProdutoService {
         this.fornecedorService = fornecedorService;
     }
 
-    public Produto cadastrarProduto(Produto produto, Long fornecedorId) {
-        Fornecedor fornecedor = fornecedorService.buscarPorId(fornecedorId);
+    public ProdutoResponseDTO cadastrarProduto(ProdutoRequestDTO dto) {
+        Fornecedor fornecedor = fornecedorService.buscarPorId(dto.getFornecedorId());
+        Produto produto = new Produto();
+        produto.setNome(dto.getNome());
+        produto.setDescricao(dto.getDescricao());
+        produto.setPreco(dto.getPreco());
         produto.setFornecedor(fornecedor);
-        return produtoRepository.save(produto);
+        produto.setAtivo(true);
+        Produto salvo = produtoRepository.save(produto);
+
+        ProdutoResponseDTO response = new ProdutoResponseDTO();
+        response.setId(salvo.getId());
+        response.setNome(salvo.getNome());
+        response.setDescricao(salvo.getDescricao());
+        response.setPreco(salvo.getPreco());
+        response.setFornecedorId(fornecedor.getId());
+        response.setFornecedorNome(fornecedor.getNome());
+        response.setAtivo(salvo.isAtivo());
+        return response;
     }
 
-    public List<Produto> listarProdutos() {
-        return produtoRepository.findAll();
+    public List<ProdutoResponseDTO> listarProdutos() {
+        List<Produto> produtos = produtoRepository.findByAtivoTrue();
+        return produtos.stream().map(produto -> {
+            ProdutoResponseDTO dto = new ProdutoResponseDTO();
+            dto.setId(produto.getId());
+            dto.setNome(produto.getNome());
+            dto.setDescricao(produto.getDescricao());
+            dto.setPreco(produto.getPreco());
+            dto.setFornecedorId(produto.getFornecedor().getId());
+            dto.setFornecedorNome(produto.getFornecedor().getNome());
+            dto.setAtivo(produto.isAtivo());
+            return dto;
+        }).toList();
     }
 
     public List<Produto> listarProdutosPorFornecedor(Long fornecedorId) {
-        return produtoRepository.findByFornecedorId(fornecedorId);
+        return produtoRepository.findByFornecedorIdAndAtivoTrue(fornecedorId);
     }
 
     public Optional<Produto> buscarPorId(Long id) {
@@ -47,10 +73,14 @@ public class ProdutoService {
         existente.setPreco(produto.getPreco());
         existente.setPrecoComDesconto(produto.getPrecoComDesconto());
         existente.setFornecedor(produto.getFornecedor());
+        existente.setAtivo(produto.isAtivo());
         return produtoRepository.save(existente);
     }
 
     public void excluirProduto(Long id) {
-        produtoRepository.deleteById(id);
+        Produto produto = produtoRepository.findById(id).orElseThrow();
+        produto.setAtivo(false);
+        produtoRepository.save(produto);
     }
+
 }

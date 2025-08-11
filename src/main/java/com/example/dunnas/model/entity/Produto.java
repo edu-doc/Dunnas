@@ -29,6 +29,9 @@ public class Produto {
     @JoinColumn(name = "fornecedor_id", nullable = false)
     private Fornecedor fornecedor;
 
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
     public Produto() {}
 
     public Long getId() {
@@ -75,16 +78,24 @@ public class Produto {
         this.fornecedor = fornecedor;
     }
 
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Produto produto = (Produto) o;
-        return Objects.equals(id, produto.id) && Objects.equals(nome, produto.nome) && Objects.equals(preco, produto.preco) && Objects.equals(precoComDesconto, produto.precoComDesconto) && Objects.equals(fornecedor, produto.fornecedor);
+        return ativo == produto.ativo && Objects.equals(id, produto.id) && Objects.equals(nome, produto.nome) && Objects.equals(descricao, produto.descricao) && Objects.equals(preco, produto.preco) && Objects.equals(precoComDesconto, produto.precoComDesconto) && Objects.equals(fornecedor, produto.fornecedor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nome, preco, precoComDesconto, fornecedor);
+        return Objects.hash(id, nome, descricao, preco, precoComDesconto, fornecedor, ativo);
     }
 
 }

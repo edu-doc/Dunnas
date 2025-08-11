@@ -1,8 +1,8 @@
-
 package com.example.dunnas.controller;
 
 import com.example.dunnas.dto.FornecedorRequestDTO;
 import com.example.dunnas.dto.FornecedorResponseDTO;
+import com.example.dunnas.model.entity.Fornecedor;
 import com.example.dunnas.service.FornecedorService;
 
 import jakarta.validation.Valid;
@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -19,6 +20,7 @@ public class FornecedorController {
     @Autowired
     private FornecedorService fornecedorService;
 
+
     @GetMapping("/novo")
     public String novoCadastro(Model model) {
         model.addAttribute("fornecedor", new FornecedorRequestDTO());
@@ -26,7 +28,7 @@ public class FornecedorController {
     }
 
     @PostMapping("/salvar")
-    public String salvarFornecedor(@Valid @ModelAttribute FornecedorRequestDTO fornecedorRequestDTO, org.springframework.validation.BindingResult result, Model model) {
+    public String salvarFornecedor(@Valid @ModelAttribute FornecedorRequestDTO fornecedorRequestDTO, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("error", "CNPJ inválido.");
             model.addAttribute("fornecedor", fornecedorRequestDTO);
@@ -34,7 +36,8 @@ public class FornecedorController {
         }
         try {
             FornecedorResponseDTO response = fornecedorService.cadastrarFornecedor(fornecedorRequestDTO);
-            return "redirect:/fornecedores/sucesso?email=" + response.getEmail();
+            model.addAttribute("email", response.getEmail());
+            return "fornecedores/sucesso";
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null) {
@@ -56,8 +59,7 @@ public class FornecedorController {
     }
 
     @GetMapping("/sucesso")
-    public String sucessoCadastro(@RequestParam("email") String email, Model model) {
-        model.addAttribute("email", email);
+    public String sucessoCadastro(Model model) {
         return "fornecedores/sucesso";
     }
 
@@ -87,5 +89,14 @@ public class FornecedorController {
             model.addAttribute("email", email);
             return "fornecedores/verificacao";
         }
+    }
+
+    @GetMapping("/perfil")
+    public String perfilFornecedor(Model model, org.springframework.security.core.Authentication authentication) {
+        String username = authentication.getName();
+        Fornecedor fornecedorEntity = fornecedorService.buscarPorUsuario(username)
+            .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
+        model.addAttribute("usuario", fornecedorEntity);
+        return "home";
     }
 }
