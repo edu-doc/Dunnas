@@ -150,7 +150,7 @@ src/
 
 ## Ferramentas Utilizadas
 
-- **Java 17+**
+- **Java 21**
 - **Spring Boot**
 - **Spring Security**
 - **JSP** para views
